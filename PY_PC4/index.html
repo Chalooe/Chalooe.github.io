@@ -595,11 +595,31 @@
           <input id="btnPlay" onclick="Play()" type="button" class="btn  btn-success" value=" | | " >
         </div>        
       </div>
+    </div>
+    <div id="cuadro-info" class="p-2 text-center" style="
+      position:absolute;
+      top:20px;
+      right:20px;
+      z-index:9999;
+    ">
+      <div class="p-2 mt-2 ml-2 bg-white border rounded">
+        <div class="mb-2">
+          Alerta Tortugas:
+        </div>
+        <div id="alertaTortugas" class="btn btn-success">CORRECTO</div>        
+      </div>
+      <div class="p-2 mt-2 ml-2 bg-white border rounded">
+        <div class="mb-2">
+          Alerta Caimanes:
+        </div>
+        <div id="alertaCaimanes" class="btn btn-success">CORRECTO</div>        
+      </div>
+    </div>
   </body>
 </html>
 <script>
   //
-  var playEstado = true;
+  var playEstado = false;
   function Play(){
     playEstado = !playEstado;
   }
@@ -1415,11 +1435,24 @@
         }
     });
     //
+    $("#alertaTortugas").removeClass("btn-success");
+    $("#alertaTortugas").removeClass("btn-danger");
+    //
+    $("#alertaCaimanes").removeClass("btn-success");
+    $("#alertaCaimanes").removeClass("btn-danger");
+    //
     if(numTortugas < 10){
       Alerta({
         numInteraccion: numInteraccion,
         tipo: "pocas Tortugas"
       });
+      //
+      $("#alertaTortugas").addClass("btn-danger");
+      $("#alertaTortugas").html("CANT. BAJA");
+    }else{
+      //
+      $("#alertaTortugas").addClass("btn-success");
+      $("#alertaTortugas").html("CORRECTO");
     }
     //
     if(numCaimanes > 10){
@@ -1427,7 +1460,14 @@
         numInteraccion: numInteraccion,
         tipo: "muchos Caimanes"
       });
-    }    
+      //
+      $("#alertaCaimanes").addClass("btn-danger");
+      $("#alertaCaimanes").html("CANT. ALTA");
+    }else{
+      //
+      $("#alertaCaimanes").addClass("btn-success");
+      $("#alertaCaimanes").html("CORRECTO");
+    }   
   }
   function ReiniciarBD() {
     $.ajax({
