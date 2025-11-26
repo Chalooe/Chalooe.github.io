@@ -1,0 +1,134 @@
+[
+    {
+        "id": "af559040e20decfc",
+        "type": "tab",
+        "label": "TORTUGAS",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "348ceaaee60cf442",
+        "type": "function",
+        "z": "af559040e20decfc",
+        "name": "CrearEspecie",
+        "func": "let cantidad = Math.floor(Math.random() * 20); // cualquier número entre 0 y 99, totalmente aleatorio\n\n// Crear array de tortugas\nlet tortugas = [];\nfor (let i = 0; i < cantidad; i++) {\n    tortugas.push({\n        id: 1000 + i,\n        edad: Math.random() * 2,\n        posX: Math.random() * 50 - 25,\n        posZ: Math.random() * 50 - 25,\n        estomago: 20,\n        estomagoLleno: 10,\n        vidaActual: 10,\n        vidaMax: 10,\n        embarazada: false,\n        comportamiento: \"comer\"\n    });\n}\n\n// Preparar mensaje para enviar a Firebase\nmsg.payload = {\n    evento: \"crear_tortugas\",\n    cantidad: cantidad,\n    tortugas: tortugas,\n    timestamp: new Date().toISOString()\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 300,
+        "wires": [
+            [
+                "ed5834fc3a9c374f",
+                "a527b7736171925e"
+            ]
+        ]
+    },
+    {
+        "id": "ed5834fc3a9c374f",
+        "type": "http request",
+        "z": "af559040e20decfc",
+        "name": "Firebase",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://pc4-te-default-rtdb.firebaseio.com/tortuga.json",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "application/json",
+                "valueValue": ""
+            }
+        ],
+        "x": 840,
+        "y": 300,
+        "wires": [
+            [
+                "be121a8787423acc"
+            ]
+        ]
+    },
+    {
+        "id": "a527b7736171925e",
+        "type": "debug",
+        "z": "af559040e20decfc",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "74771c01c2cab383",
+        "type": "inject",
+        "z": "af559040e20decfc",
+        "name": "Intervalo",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "15",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 420,
+        "y": 300,
+        "wires": [
+            [
+                "348ceaaee60cf442"
+            ]
+        ]
+    },
+    {
+        "id": "be121a8787423acc",
+        "type": "function",
+        "z": "af559040e20decfc",
+        "name": "Estado",
+        "func": "msg.payload = { status: \"ok\" };\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1020,
+        "y": 300,
+        "wires": [
+            [
+                "01810ca402eda483"
+            ]
+        ]
+    },
+    {
+        "id": "01810ca402eda483",
+        "type": "http response",
+        "z": "af559040e20decfc",
+        "name": "Estado",
+        "statusCode": "",
+        "headers": {},
+        "x": 1200,
+        "y": 300,
+        "wires": []
+    }
+]

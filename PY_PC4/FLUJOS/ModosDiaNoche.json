@@ -1,0 +1,134 @@
+[
+    {
+        "id": "b36ae93be7e94d1b",
+        "type": "tab",
+        "label": "DiaNoche",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "4b26589ce7e8b159",
+        "type": "function",
+        "z": "b36ae93be7e94d1b",
+        "name": "Modo",
+        "func": "let escalaDia = msg.escalaDia || 10;\nlet dia = msg.dia || 18;\nlet noche = msg.noche || 6;\nlet contador = context.get('contador') || 0;\ncontador++;\nlet horaSimulada = (contador / escalaDia) % 24;\nlet esDia = (horaSimulada >= noche && horaSimulada < dia);\nmsg.payload = {\n    evento: \"ciclo_dia_noche\",\n    hora: horaSimulada,\n    esDia: esDia,\n    timestamp: new Date().toISOString()\n};\ncontext.set('contador', contador);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 360,
+        "wires": [
+            [
+                "a0882de569d1bc34",
+                "134b5d3d6bd02a7f"
+            ]
+        ]
+    },
+    {
+        "id": "a0882de569d1bc34",
+        "type": "http request",
+        "z": "b36ae93be7e94d1b",
+        "name": "Firebase",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://pc4-te-default-rtdb.firebaseio.com/modo.json",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "application/json",
+                "valueValue": ""
+            }
+        ],
+        "x": 720,
+        "y": 360,
+        "wires": [
+            [
+                "1f9480935088739e"
+            ]
+        ]
+    },
+    {
+        "id": "134b5d3d6bd02a7f",
+        "type": "debug",
+        "z": "b36ae93be7e94d1b",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "896936a90874d00c",
+        "type": "inject",
+        "z": "b36ae93be7e94d1b",
+        "name": "Intervalo",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "2",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 300,
+        "y": 360,
+        "wires": [
+            [
+                "4b26589ce7e8b159"
+            ]
+        ]
+    },
+    {
+        "id": "1f9480935088739e",
+        "type": "function",
+        "z": "b36ae93be7e94d1b",
+        "name": "Estado",
+        "func": "msg.payload = { status: \"ok\" };\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 360,
+        "wires": [
+            [
+                "d859df0ad6168a59"
+            ]
+        ]
+    },
+    {
+        "id": "d859df0ad6168a59",
+        "type": "http response",
+        "z": "b36ae93be7e94d1b",
+        "name": "Estado",
+        "statusCode": "",
+        "headers": {},
+        "x": 1080,
+        "y": 360,
+        "wires": []
+    }
+]

@@ -1,0 +1,696 @@
+[
+    {
+        "id": "40f01c2059fedd1c",
+        "type": "tab",
+        "label": "Natalidad",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "3b7130ba43b7bca0",
+        "type": "tab",
+        "label": "Lluvia",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "80492e963c9e461c",
+        "type": "tab",
+        "label": "Depredadores",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "af559040e20decfc",
+        "type": "tab",
+        "label": "TORTUGAS",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "b36ae93be7e94d1b",
+        "type": "tab",
+        "label": "DiaNoche",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "c6c761f961bfe7a3",
+        "type": "http in",
+        "z": "40f01c2059fedd1c",
+        "name": "",
+        "url": "/api/registro",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 270,
+        "y": 180,
+        "wires": [
+            [
+                "6162b285d01e68e6"
+            ]
+        ]
+    },
+    {
+        "id": "c0c513a929d57f28",
+        "type": "function",
+        "z": "40f01c2059fedd1c",
+        "name": "function 2",
+        "func": "// Recibir datos desde FlowFuse\nlet data = msg.payload;\n\n// Si viene como string JSON, parsearlo\nif (typeof data === \"string\") {\n    data = JSON.parse(data);\n}\n\nmsg.payload = {\n    cantidad: data.cantidad, // ahora sí debería tener valor\n    timestamp: new Date().toISOString(),\n    tipo: \"cantidad_tortugas\"\n};\n\nconsole.log(\"Payload a enviar a Firebase:\", msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 180,
+        "wires": [
+            [
+                "8a8201b1e6dcfac3",
+                "5c6b83cfce0e4033"
+            ]
+        ]
+    },
+    {
+        "id": "8a8201b1e6dcfac3",
+        "type": "http request",
+        "z": "40f01c2059fedd1c",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://pc4-te-default-rtdb.firebaseio.com/evento.json",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "application/json",
+                "valueValue": ""
+            }
+        ],
+        "x": 830,
+        "y": 180,
+        "wires": [
+            [
+                "0da986fcaa98d132"
+            ]
+        ]
+    },
+    {
+        "id": "6162b285d01e68e6",
+        "type": "json",
+        "z": "40f01c2059fedd1c",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 490,
+        "y": 140,
+        "wires": [
+            [
+                "c0c513a929d57f28"
+            ]
+        ]
+    },
+    {
+        "id": "5c6b83cfce0e4033",
+        "type": "debug",
+        "z": "40f01c2059fedd1c",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "0bc1aae945d219e4",
+        "type": "inject",
+        "z": "40f01c2059fedd1c",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "10",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 290,
+        "y": 280,
+        "wires": [
+            [
+                "c0c513a929d57f28"
+            ]
+        ]
+    },
+    {
+        "id": "0da986fcaa98d132",
+        "type": "function",
+        "z": "40f01c2059fedd1c",
+        "name": "function 1",
+        "func": "msg.payload = { status: \"ok\" };\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1000,
+        "y": 180,
+        "wires": [
+            [
+                "12c057565b72487b"
+            ]
+        ]
+    },
+    {
+        "id": "12c057565b72487b",
+        "type": "http response",
+        "z": "40f01c2059fedd1c",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 1170,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "e1ba03a2acae0687",
+        "type": "function",
+        "z": "3b7130ba43b7bca0",
+        "name": "lluvia",
+        "func": "let probabilidadLluvia = msg.probabilidad || 50;  \nlet escalaDia = msg.escalaDia || 1;                \n\n\nlet minLluvia = 4 * escalaDia;\nlet maxLluvia = 8 * escalaDia;\nlet duracion = Math.floor(Math.random() * (maxLluvia - minLluvia)) + minLluvia;\n\n\nlet dado = Math.random() * 100;\n\nif (dado < probabilidadLluvia) {\n\n\n    msg.payload = {\n        evento: \"lluvia\",\n        activo: true,\n        duracion: duracion,\n        probabilidad: probabilidadLluvia,\n        timestamp: new Date().toISOString()\n    };\n\n} else {\n\n    msg.payload = {\n        evento: \"lluvia\",\n        activo: false,\n        probabilidad: probabilidadLluvia,\n        timestamp: new Date().toISOString()\n    };\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 570,
+        "y": 260,
+        "wires": [
+            [
+                "a8801595dec678b5",
+                "a89baf5dd5f4b913"
+            ]
+        ]
+    },
+    {
+        "id": "a8801595dec678b5",
+        "type": "http request",
+        "z": "3b7130ba43b7bca0",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://pc4-te-default-rtdb.firebaseio.com/lluvia.json",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "application/json",
+                "valueValue": ""
+            }
+        ],
+        "x": 790,
+        "y": 260,
+        "wires": [
+            [
+                "7dc5c6d470a10483"
+            ]
+        ]
+    },
+    {
+        "id": "a89baf5dd5f4b913",
+        "type": "debug",
+        "z": "3b7130ba43b7bca0",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 600,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "d11efe3e3ab1e3c1",
+        "type": "inject",
+        "z": "3b7130ba43b7bca0",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "10",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 380,
+        "y": 260,
+        "wires": [
+            [
+                "e1ba03a2acae0687"
+            ]
+        ]
+    },
+    {
+        "id": "7dc5c6d470a10483",
+        "type": "function",
+        "z": "3b7130ba43b7bca0",
+        "name": "Estado",
+        "func": "msg.payload = { status: \"ok\" };\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 960,
+        "y": 260,
+        "wires": [
+            [
+                "c825a7e629c21d6a"
+            ]
+        ]
+    },
+    {
+        "id": "c825a7e629c21d6a",
+        "type": "http response",
+        "z": "3b7130ba43b7bca0",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 1130,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "66c6979a14faa769",
+        "type": "function",
+        "z": "80492e963c9e461c",
+        "name": "CrearDepredador",
+        "func": "let cantidadCaimanes = Math.floor(Math.random() * 10);\n\nlet caimanes = [];\nfor (let i = 0; i < cantidadCaimanes; i++) {\n    caimanes.push({\n        id: 2000 + i,\n        edad: Math.random() * 1,\n        posX: Math.random() * 50 - 25,\n        posZ: Math.random() * 50 - 25,\n        estomago: 20,\n        estomagoLleno: 10,\n        vidaActual: 10,\n        vidaMax: 10,\n        comportamiento: \"comer\"\n    });\n}\n\nmsg.payload = {\n    evento: \"crear_caimanes\",\n    cantidad: cantidadCaimanes,\n    caimanes: caimanes,\n    timestamp: new Date().toISOString()\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 360,
+        "wires": [
+            [
+                "4ed417da5e53c0cb",
+                "260959d87bbd0a84"
+            ]
+        ]
+    },
+    {
+        "id": "4ed417da5e53c0cb",
+        "type": "http request",
+        "z": "80492e963c9e461c",
+        "name": "Firebase",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://pc4-te-default-rtdb.firebaseio.com/depredador.json",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "application/json",
+                "valueValue": ""
+            }
+        ],
+        "x": 680,
+        "y": 360,
+        "wires": [
+            [
+                "047092fb9a40c958"
+            ]
+        ]
+    },
+    {
+        "id": "260959d87bbd0a84",
+        "type": "debug",
+        "z": "80492e963c9e461c",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "1c181fa1e53793e5",
+        "type": "inject",
+        "z": "80492e963c9e461c",
+        "name": "Intervalo",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "15",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 260,
+        "y": 360,
+        "wires": [
+            [
+                "66c6979a14faa769"
+            ]
+        ]
+    },
+    {
+        "id": "047092fb9a40c958",
+        "type": "function",
+        "z": "80492e963c9e461c",
+        "name": "Estado",
+        "func": "msg.payload = { status: \"ok\" };\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 360,
+        "wires": [
+            [
+                "0e6ad41beb26f078"
+            ]
+        ]
+    },
+    {
+        "id": "0e6ad41beb26f078",
+        "type": "http response",
+        "z": "80492e963c9e461c",
+        "name": "Estado",
+        "statusCode": "",
+        "headers": {},
+        "x": 1040,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "348ceaaee60cf442",
+        "type": "function",
+        "z": "af559040e20decfc",
+        "name": "CrearEspecie",
+        "func": "let cantidad = Math.floor(Math.random() * 20); // cualquier número entre 0 y 99, totalmente aleatorio\n\n// Crear array de tortugas\nlet tortugas = [];\nfor (let i = 0; i < cantidad; i++) {\n    tortugas.push({\n        id: 1000 + i,\n        edad: Math.random() * 2,\n        posX: Math.random() * 50 - 25,\n        posZ: Math.random() * 50 - 25,\n        estomago: 20,\n        estomagoLleno: 10,\n        vidaActual: 10,\n        vidaMax: 10,\n        embarazada: false,\n        comportamiento: \"comer\"\n    });\n}\n\n// Preparar mensaje para enviar a Firebase\nmsg.payload = {\n    evento: \"crear_tortugas\",\n    cantidad: cantidad,\n    tortugas: tortugas,\n    timestamp: new Date().toISOString()\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 300,
+        "wires": [
+            [
+                "ed5834fc3a9c374f",
+                "a527b7736171925e"
+            ]
+        ]
+    },
+    {
+        "id": "ed5834fc3a9c374f",
+        "type": "http request",
+        "z": "af559040e20decfc",
+        "name": "Firebase",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://pc4-te-default-rtdb.firebaseio.com/tortuga.json",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "application/json",
+                "valueValue": ""
+            }
+        ],
+        "x": 840,
+        "y": 300,
+        "wires": [
+            [
+                "be121a8787423acc"
+            ]
+        ]
+    },
+    {
+        "id": "a527b7736171925e",
+        "type": "debug",
+        "z": "af559040e20decfc",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "74771c01c2cab383",
+        "type": "inject",
+        "z": "af559040e20decfc",
+        "name": "Intervalo",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "15",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 420,
+        "y": 300,
+        "wires": [
+            [
+                "348ceaaee60cf442"
+            ]
+        ]
+    },
+    {
+        "id": "be121a8787423acc",
+        "type": "function",
+        "z": "af559040e20decfc",
+        "name": "Estado",
+        "func": "msg.payload = { status: \"ok\" };\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1020,
+        "y": 300,
+        "wires": [
+            [
+                "01810ca402eda483"
+            ]
+        ]
+    },
+    {
+        "id": "01810ca402eda483",
+        "type": "http response",
+        "z": "af559040e20decfc",
+        "name": "Estado",
+        "statusCode": "",
+        "headers": {},
+        "x": 1200,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "4b26589ce7e8b159",
+        "type": "function",
+        "z": "b36ae93be7e94d1b",
+        "name": "Modo",
+        "func": "let escalaDia = msg.escalaDia || 10;\nlet dia = msg.dia || 18;\nlet noche = msg.noche || 6;\nlet contador = context.get('contador') || 0;\ncontador++;\nlet horaSimulada = (contador / escalaDia) % 24;\nlet esDia = (horaSimulada >= noche && horaSimulada < dia);\nmsg.payload = {\n    evento: \"ciclo_dia_noche\",\n    hora: horaSimulada,\n    esDia: esDia,\n    timestamp: new Date().toISOString()\n};\ncontext.set('contador', contador);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 360,
+        "wires": [
+            [
+                "a0882de569d1bc34",
+                "134b5d3d6bd02a7f"
+            ]
+        ]
+    },
+    {
+        "id": "a0882de569d1bc34",
+        "type": "http request",
+        "z": "b36ae93be7e94d1b",
+        "name": "Firebase",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://pc4-te-default-rtdb.firebaseio.com/modo.json",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "application/json",
+                "valueValue": ""
+            }
+        ],
+        "x": 720,
+        "y": 360,
+        "wires": [
+            [
+                "1f9480935088739e"
+            ]
+        ]
+    },
+    {
+        "id": "134b5d3d6bd02a7f",
+        "type": "debug",
+        "z": "b36ae93be7e94d1b",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "896936a90874d00c",
+        "type": "inject",
+        "z": "b36ae93be7e94d1b",
+        "name": "Intervalo",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "2",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 300,
+        "y": 360,
+        "wires": [
+            [
+                "4b26589ce7e8b159"
+            ]
+        ]
+    },
+    {
+        "id": "1f9480935088739e",
+        "type": "function",
+        "z": "b36ae93be7e94d1b",
+        "name": "Estado",
+        "func": "msg.payload = { status: \"ok\" };\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 360,
+        "wires": [
+            [
+                "d859df0ad6168a59"
+            ]
+        ]
+    },
+    {
+        "id": "d859df0ad6168a59",
+        "type": "http response",
+        "z": "b36ae93be7e94d1b",
+        "name": "Estado",
+        "statusCode": "",
+        "headers": {},
+        "x": 1080,
+        "y": 360,
+        "wires": []
+    }
+]
