@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Simulacion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <script>
+  AFRAME.registerComponent('pixelated', {
+    init: function () {
+      this.el.addEventListener('model-loaded', () => {
+        const mesh = this.el.getObject3D('mesh');
+
+        mesh.traverse(nodo => {
+          if (nodo.isMesh && nodo.material.map) {
+            nodo.material.map.magFilter = THREE.NearestFilter;
+            nodo.material.map.minFilter = THREE.NearestFilter;
+            nodo.material.needsUpdate = true;
+          }
+        });
+      });
+    }
+  });
+
+  AFRAME.registerComponent('vertical-move', {
+    schema: { speed: {type: 'number', default: 0.05} },
+
+    init() {
+      this.keys = {};
+      window.addEventListener('keydown',  e => this.keys[e.code] = true);
+      window.addEventListener('keyup',    e => this.keys[e.code] = false);
+    },
+
+    tick() {
+      const pos = this.el.object3D.position;
+      if (this.keys['Space'])       pos.y += this.data.speed;
+      if (this.keys['ControlLeft'] || this.keys['ControlRight'])
+                                    pos.y -= this.data.speed;
+    }
+  });
+  </script>
+  <body>
+    <div>
+      <a-scene id="divTerreno">
+          <a-assets>
+              <a-asset-item id="tortuga" src="Assets/Tortuga3/tortuga2.glb"></a-asset-item>
+              <a-asset-item id="caiman" src="Assets/Caiman/crocodile.glb"></a-asset-item>
+          </a-assets>          
+          <a-entity camera
+                    look-controls
+                    wasd-controls
+                    vertical-move>
+          </a-entity>
+          <a-sky color="#ECECEC"></a-sky>        
+      </a-scene>
+    </div>
+    <div id="cuadro-info" style="
+      position:absolute;
+      top:20px;
+      left:20px;
+      z-index:9999;
+      padding:16px 24px;
+      border-radius:10px;
+      background:#f6f8fa;
+      box-shadow:0 6px 18px rgba(0,0,0,0.08);
+      text-align:center;
+    ">
+      <div id="titulo-cuadro" style="font-size:12px; color:#666; margin-bottom:6px;">
+        Cantidad de Tortugas
+      </div>
+
+      <div id="valor-cuadro" style="
+        font-size:36px;
+        font-weight:700;
+        line-height:1;
+        color:#0b6d91;
+        min-width:80px;
+      ">
+        0
+      </div>
+    </div>
+  </body>
+</html>
+<script>
+  //
+  //escala de la matriz de comida
+  var anchoRio = 20;
+  var largoRio = 20;
+  //
+  var anchoArenaTortuga = 6;
+  var anchoArenaCaiman = 6; 
+  //
+  var colorRio = "#00a8e8";
+  var colorArenaTortuga = "#ffd670";
+  var colorArenaCaiman = "#ffd670";
+  //
+  var cantTortugas = 30;
+  var cantCaimanes = 5;
+  var cantComida = 30;
+  //
+  //Detalles tortuga
+  var natalidadTortuga = 25;
+  var criasXTortuga = 15;
+  var colorTortuga = "#52b69a";
+  var edadBase = 0.1;
+  var energiaTortuga = 20;
+  var tiempoVidaTortuga = 100;
+  //
+  //Detalles Caiman
+  var colorCaiman = "#d9ed92";
+  var natalidadCaiman = 50;
+  var criasXCaiman = 3;
+  var tiempoVidaCaiman = 100;
+  //
+  //Detalles Comida
+  var velProduccionComida = 20;
+  var tiempoVidaComida = 15;
+  var energiaComida = 5;
+  //
+  var tortugasCreadas = 0;
+  var tortugas = [];
+  //
+  var huevosCreados = 0;
+  var huevos = [];
+  var tiempoEncubacion = 50;
+  var colorHuevo = "#fbfbf2";
+  //
+  var caimanesCreados = 0;
+  var caimanes = [];
+  //
+  var comidaCreadas = 0;
+  var comidas = [];
+  //
+  //
+  function RenderizarPlanoMapa(){
+    var colorUsado = 0;
+    var color1 = "#168aad";
+    var color2 = "#1a759f";
+    //
+/*
+          <a-entity gltf-model="#caiman" position="0 0 0" scale="0.25 0.25 0.25" material="transparent: false; opacity: 1; depthTest: true; depthWrite: true" pixelated></a-entity>
+*/
+    //Rio
+    RenderizarArea(-(anchoRio/2), (anchoRio/2), -(largoRio/2), (largoRio/2), colorRio);
+    //Arena Tortuga
+    RenderizarArea(-(anchoArenaTortuga)-(anchoRio/2), -(largoRio/2), -(largoRio/2), (largoRio/2), colorArenaTortuga);
+    //Arena Caiman
+    RenderizarArea((anchoRio/2), (anchoArenaCaiman) + (anchoRio/2), -(largoRio/2), (largoRio/2), colorArenaCaiman);
+  }
+  //
+  function RenderizarArea(posXI, posXF, PosZI, PosZF, colorBloque){
+    r = ``;
+    for(var i = posXI; i < posXF ; i ++){
+      for(var j = PosZI; j < PosZF; j ++){
+        r += '<a-box position="' + i + ' -0.5 ' + j + '" rotation="0 0 0" color="' + colorBloque + '"></a-box>';
+      } 
+    }
+    $("#divTerreno").append(r);
+  }
+  //
+  function CrearTortuga(x, z, tipo){
+    tortugasCreadas ++;
+    //
+    var edadTortuga = edadBase;
+    if(tipo == 1){
+      edadTortuga = edadBase + (Math.floor(Math.random() * 10) / 10); 
+    }
+    //
+    var nuevaTortuga = {
+      id: tortugasCreadas,
+      comportamieto: "comer", //comer, ponerHuevos
+      posX: x,
+      posZ: z,
+      estomago: 20,
+      estomagoLleno: Math.floor(Math.random() * 15) + 5,
+      vidaMax: 10,
+      vidaActual: 10,
+      edad: edadTortuga,
+      tiempoVida: tiempoVidaTortuga + Math.floor(Math.random() * 20)
+    };
+    tortugas.push(nuevaTortuga);
+    //r = '<a-box id="T_' +  tortugasCreadas + '" position="' + x + ' 0.5 ' + z + '" rotation="0 0 0" scale="' + nuevaTortuga.edad + ' ' + nuevaTortuga.edad + ' ' + nuevaTortuga.edad + '"color="' + colorTortuga + '"></a-box>';
+    //<a-entity gltf-model="#tortuga" position="0 0 0" scale="0.25 0.25 0.25" material="transparent: false; opacity: 1; depthTest: true; depthWrite: true" pixelated></a-entity>
+    var scalaG = nuevaTortuga.edad * 0.25;
+    r = '<a-entity gltf-model="#tortuga" id="T_' +  tortugasCreadas + '" position="' + x + ' 0 ' + z + '" rotation="0 0 0" scale="' + scalaG + ' ' + scalaG + ' ' + scalaG + '"color="' + colorTortuga + '"></a-box>';
+    $('a-scene').append(r);
+    console.log("Nueva Tortuga " + tortugasCreadas);
+  }
+  //
+  function PonerHuevos(cantidad, x, z){
+    huevosCreados ++;
+    var nuevoHuevo = {
+      id: huevosCreados,
+      cantidad: cantidad,
+      posX: x,
+      posZ: z,
+      tiempoEncubacion: tiempoEncubacion + Math.floor(Math.random() * 10)
+    };
+    huevos.push(nuevoHuevo);
+    r = '<a-box id="TH_' +  huevosCreados + '" position="' + x + ' 0.5 ' + z + '" rotation="0 0 0" scale=" 0.1 0.1 0.1" color="' + colorHuevo + '"></a-box>';
+    $('a-scene').append(r);
+    console.log("Nuevo Huevo " + huevosCreados);
+  }
+  //  
+  function CrearCaiman(x, z){
+    caimanesCreados ++;
+    var nuevoCaiman = {
+      id: caimanesCreados,
+      posX: x,
+      posZ: z,
+      estomago: 20,
+      estomagoLleno: Math.floor(Math.random() * 15) + 5,
+      vidaMax: 10,
+      vidaActual: 10,
+      edad: 1,
+      tiempoVida: tiempoVidaCaiman + Math.floor(Math.random() * 20)
+    };
+    caimanes.push(nuevoCaiman);
+    //r = '<a-box id="CA_' +  caimanesCreados + '" position="' + x + ' 0.5 ' + z + '" rotation="0 0 0" scale="' + nuevoCaiman.edad + ' ' + nuevoCaiman.edad + ' ' + nuevoCaiman.edad + '"color="' + colorCaiman + '"></a-box>';
+
+    var scalaG = nuevoCaiman.edad * 0.5;
+    r = '<a-entity gltf-model="#caiman" id="CA_' +  caimanesCreados + '" position="' + x + ' 0 ' + z + '" rotation="0 0 0" scale="' + scalaG + ' ' + scalaG + ' ' + scalaG + '"color="' + colorTortuga + '"></a-box>';
+
+
+    $('a-scene').append(r);
+    console.log("Nuevo Caiman " + caimanesCreados);
+  }
+  //
+  function CrearComida(x,z){
+    var colorComida = "#ffd60a";
+    comidaCreadas ++;
+    //
+    var nuevaComida = {
+      id: comidaCreadas,
+      posX: x,
+      posZ: z,
+      tiempoVida: tiempoVidaComida + Math.floor(Math.random() * 20)
+    };
+    comidas.push(nuevaComida);
+    r = '<a-box id="C_' +  comidaCreadas + '" position="' + x + ' 0.5 ' + z + '" rotation="0 0 0" scale="0.3 0.3 0.3" color="' + colorComida + '"></a-box>';
+    $('a-scene').append(r);
+    console.log("Nueva Comida " + comidaCreadas);
+  }
+  //
+  function MoverTortugas(){
+    tortugas.forEach(tortuga => {
+      //MORTALIDAD DE EDAD
+      tortuga.tiempoVida --;
+      if(tortuga.tiempoVida <= 0){
+          console.log("La tortuga " + tortuga.id + " acaba de fallecer");
+          $('#T_' + tortuga.id).remove();
+          tortugas = tortugas.filter(c => c.id !== tortuga.id);
+          return;
+      }
+      //CURACION
+      if(tortuga.estomagoLleno/tortuga.estomago > 0.8){
+        if(tortuga.vidaMax > tortuga.vidaActual){
+          tortuga.vidaActual ++;
+        }
+      }
+      //DESGASTE DE ENERGIA
+      tortuga.estomagoLleno -= 0.5;
+      //
+      //DAÑO POR FALTA DE COMER
+      if(tortuga.estomagoLleno/tortuga.estomago < 0.3){
+        tortuga.vidaActual --;
+        if(tortuga.vidaActual <= 0){
+          $('#T_' + tortuga.id).remove();
+          tortugas = tortugas.filter(c => c.id !== tortuga.id);
+        }
+      }
+      //CRECIMIENTO
+      if(tortuga.edad < 0.8){
+        tortuga.edad += 0.05;
+        //
+        var scalaG = tortuga.edad * 0.25;
+        $("#T_" + tortuga.id).attr('scale', scalaG + ' ' + scalaG + ' ' + scalaG);
+      }
+      //
+      //COMPORTAMIENTOS
+      if(tortuga.comportamieto == "comer"){
+        //IR A COMER
+        const { posX, posZ, comidaX } = ComidaMasCercana(tortuga.posX, tortuga.posZ);
+        if(comidaX != null){
+          //
+          var direccionX = tortuga.posX - posX;
+          var direccionZ = tortuga.posZ - posZ;
+          //
+          //ALEATORIEDAD DE ACCIONES
+          var modo = Math.floor(Math.random() * 2);
+          var modoUso = 0;
+          if(modo == 0){
+            if(Math.abs(direccionX) > 0){
+              modoUso = 1;
+            }
+            else if(Math.abs(direccionZ) > 0){
+              modoUso = 2;
+            }
+          }else{
+            if(Math.abs(direccionZ) > 0){
+              modoUso = 2;
+            }
+            else if(Math.abs(direccionX) > 0){
+              modoUso = 1;
+            } 
+          }
+          //MOVERSE
+          if(modoUso == 1){
+            if(direccionX > 0){
+              tortuga.posX = tortuga.posX - 1;
+              $("#T_" + tortuga.id).attr('rotation',  '0 180 0');
+            }
+            else{
+              tortuga.posX = tortuga.posX + 1;
+              $("#T_" + tortuga.id).attr('rotation',  '0 0 0');
+            }
+            $("#T_" + tortuga.id).attr('position', tortuga.posX + ' 0 ' + tortuga.posZ);
+          }else if(modoUso == 2){
+            if(direccionZ > 0){
+              tortuga.posZ = tortuga.posZ - 1;
+              $("#T_" + tortuga.id).attr('rotation',  '0 90 0');
+            }
+            else{
+              tortuga.posZ = tortuga.posZ + 1;
+              $("#T_" + tortuga.id).attr('rotation',  '0 -90 0');
+            }
+            $("#T_" + tortuga.id).attr('position', tortuga.posX + ' 0 ' + tortuga.posZ);
+          }else{
+            //COMER
+            tortuga.estomagoLleno += energiaComida;
+            if(tortuga.estomagoLleno > tortuga.estomago){
+              tortuga.estomagoLleno = tortuga.estomago;
+            }
+            $('#C_' + comidaX.id).remove();
+            comidas = comidas.filter(c => c.id !== comidaX.id);
+          }
+        }
+        //
+        //DISPONIBILIDAD DE NATALIDAD
+        if(tortuga.edad > 0.75 && tortuga.estomagoLleno/tortuga.estomago > 0.75){
+          tortuga.comportamieto = "ponerHuevo";
+        }
+      }else if(tortuga.comportamieto == "ponerHuevo"){
+        //IR A PONER HUEVOS
+        if(tortuga.posX > - (anchoRio/2) - 2){
+          tortuga.posX = tortuga.posX - 1;
+          $("#T_" + tortuga.id).attr('position', tortuga.posX + ' 0 ' + tortuga.posZ);
+        }
+        //LLEGO
+        //NATALIDAD        
+        if(!(tortuga.posX > - (anchoRio/2) - 2)){
+          if(1 == Math.floor(Math.random() * natalidadTortuga)){
+            PonerHuevos(Math.floor(Math.random() * criasXTortuga) + 1, tortuga.posX, tortuga.posZ);
+            tortuga.comportamieto = "comer";
+          }
+        }
+      }  
+    });
+  }
+  //
+  function MoverCaimanes(){
+    caimanes.forEach(caiman => {
+      //MORTALIDAD DE EDAD
+      caiman.tiempoVida --;
+      if(caiman.tiempoVida <= 0){
+          console.log("El caiman " + caiman.id + " acaba de fallecer");
+          $('#CA_' + caiman.id).remove();
+          caimanes = caimanes.filter(c => c.id !== caiman.id);
+          return;
+      }
+      //CURACION
+      if(caiman.estomagoLleno/caiman.estomago > 0.8){
+        if(caiman.vidaMax > caiman.vidaActual){
+          caiman.vidaActual ++;
+        }
+      }
+      //DESGASTE DE ENERGIA
+      caiman.estomagoLleno -= 0.01;
+      //
+      //DAÑO POR FALTA DE COMER
+      if(caiman.estomagoLleno/caiman.estomago < 0.3){
+        caiman.vidaActual --;
+        if(caiman.vidaActual <= 0){
+          $('#CA_' + caiman.id).remove();
+          caimanes = caimanes.filter(c => c.id !== caiman.id);
+        }
+      }
+      //CRECIMIENTO
+      if(caiman.edad < 0.8){
+        caiman.edad += 0.05;
+        //
+        $("#CA_" + caiman.id).attr('scale', caiman.edad + ' ' + caiman.edad + ' ' + caiman.edad);
+      }
+      //
+      //COMPORTAMIENTOS
+      //IR A COMER
+      if(caiman.estomagoLleno/caiman.estomago < 0.8){
+        const { posX, posZ, tortugaX } = TortugaMasCercana(caiman.posX, caiman.posZ);
+        if(tortugaX != null){
+          //
+          var direccionX = caiman.posX - posX;
+          var direccionZ = caiman.posZ - posZ;
+          //
+          var modo = Math.floor(Math.random() * 2);
+          var modoUso = 0;
+          if(modo == 0){
+            if(Math.abs(direccionX) > 0){
+              modoUso = 1;
+            }
+            else if(Math.abs(direccionZ) > 0){
+              modoUso = 2;
+            }
+          }else{
+            if(Math.abs(direccionZ) > 0){
+              modoUso = 2;
+            }
+            else if(Math.abs(direccionX) > 0){
+              modoUso = 1;
+            } 
+          }
+          //
+          if(modoUso == 1){
+            if(direccionX > 0){
+              caiman.posX = caiman.posX - 1;
+              $("#CA_" + caiman.id).attr('rotation',  '0 90 0');
+            }
+            else{
+              caiman.posX = caiman.posX + 1;
+              $("#CA_" + caiman.id).attr('rotation',  '0 -90 0');
+            }
+            $("#CA_" + caiman.id).attr('position', caiman.posX + ' 0 ' + caiman.posZ);
+          }else if(modoUso == 2){
+            if(direccionZ > 0){
+              caiman.posZ = caiman.posZ - 1;
+              $("#CA_" + caiman.id).attr('rotation',  '0 180 0');
+            }
+            else{
+              caiman.posZ = caiman.posZ + 1;
+              $("#CA_" + caiman.id).attr('rotation',  '0 0 0');
+            }
+            $("#CA_" + caiman.id).attr('position', caiman.posX + ' 0 ' + caiman.posZ);
+          }else{
+            caiman.estomagoLleno += 20;
+            if(caiman.estomagoLleno > caiman.estomago){
+              caiman.estomagoLleno = caiman.estomago;
+            }
+            $('#T_' + tortugaX.id).remove();
+            tortugas = tortugas.filter(c => c.id !== tortugaX.id);
+          }
+        }
+      }else{
+        if(caiman.posX < (anchoRio/2) + 2){
+            caiman.posX = caiman.posX + 1;
+              $("#CA_" + caiman.id).attr('rotation',  '0 -90 0');
+            $("#CA_" + caiman.id).attr('position', caiman.posX + ' 0.5 ' + caiman.posZ);
+        }else{
+            //
+            if(caiman.edad > 0.75){
+              if(1 == Math.floor(Math.random() * natalidadCaiman)){
+                for(var mx = 1; mx < Math.floor(Math.random() * criasXCaiman) + 1; mx ++){
+                  CrearCaiman(caiman.posX,caiman.posZ);
+                }
+              }
+            }
+        }
+      }    
+    });
+  }
+  //
+  function ComidaMasCercana(x,z){
+    var posX = 0;
+    var posZ = 0;
+    //
+    var menorDistancia = -1;
+    var comidaX = null;
+    //
+    comidas.forEach(comida => {
+      var distancia = 0;
+      distancia += Math.abs(comida.posX - x);
+      distancia += Math.abs(comida.posZ - z);
+      //
+      if(menorDistancia == -1 || menorDistancia > distancia){
+        menorDistancia = distancia;
+        posX = comida.posX;
+        posZ = comida.posZ;
+        comidaX = comida;
+      }
+    });
+    return { posX, posZ, comidaX};
+  }
+  //
+  function TortugaMasCercana(x,z){
+    var posX = 0;
+    var posZ = 0;
+    //
+    var menorDistancia = -1;
+    var tortugaX = null;
+    //
+    tortugas.forEach(tortuga => {
+      if(tortuga.posX > - (anchoRio/2) + 1){
+        var distancia = 0;
+        distancia += Math.abs(tortuga.posX - x);
+        distancia += Math.abs(tortuga.posZ - z);
+        //
+        if(menorDistancia == -1 || menorDistancia > distancia){
+          menorDistancia = distancia;
+          posX = tortuga.posX;
+          posZ = tortuga.posZ;
+          tortugaX = tortuga;
+        }
+      }
+    });
+    return { posX, posZ, tortugaX};
+  }
+  //
+  //Inicializador de procesos
+  RenderizarPlanoMapa();
+  //
+  //mas de una tortuga
+  for(var i = 0; i < cantTortugas; i ++){
+    CrearTortuga(
+      Math.floor(Math.random() * anchoArenaTortuga) - (anchoArenaTortuga/2) - (anchoRio/2),
+      Math.floor(Math.random() * largoRio) - (largoRio/2),
+      1
+    );
+  }
+  //mas de una comida
+  for(var i = 0; i < cantComida; i ++){
+    CrearComida(
+      Math.floor(Math.random() * anchoRio) - (anchoRio/2),
+      Math.floor(Math.random() * largoRio) - (largoRio/2)
+    );
+  }
+  //mas de un caiman
+  for(var i = 0; i < cantCaimanes; i ++){
+    CrearCaiman(
+      Math.floor(Math.random() * anchoArenaCaiman) - (anchoArenaCaiman/2) + (anchoRio/2),
+      Math.floor(Math.random() * largoRio) - (largoRio/2)
+    );
+  }
+  //
+  async function LoopConEspera() {
+    var tiempoTranscurrido = 0;
+    while (true) {
+      tiempoTranscurrido ++;
+      if(tiempoTranscurrido % 10 == 0){
+        MoverTortugas();
+      }
+      //
+      //Descomponer Comida
+      comidas.forEach(comida => {
+        comida.tiempoVida --;
+        if(comida.tiempoVida <= 0){
+          $('#C_' + comida.id).remove();
+        }
+      });
+      comidas = comidas.filter(c => c.tiempoVida > 0);
+      //
+      //Verificar Huevos
+      huevos.forEach(huevo => {
+        huevo.tiempoEncubacion --;
+        if(huevo.tiempoEncubacion <= 0){
+          $('#TH_' + huevo.id).remove();
+          //
+          for(var mx = 0; mx < huevo.cantidad; mx ++){
+            CrearTortuga(
+              huevo.posX,
+              huevo.posZ,
+              0
+            );
+          }
+        }
+      });
+      huevos = huevos.filter(c => c.tiempoEncubacion > 0);
+      //
+      MoverCaimanes();
+      if(tiempoTranscurrido % velProduccionComida == 0){
+        for(var mx = 0; mx < Math.floor(Math.random() * largoRio * anchoRio / 16); mx ++){
+          CrearComida(
+            Math.floor(Math.random() * anchoRio) - (anchoRio/2),
+            Math.floor(Math.random() * largoRio) - (largoRio/2)
+          );
+        }
+      }
+      $("#valor-cuadro").text(tortugas.length);
+      await new Promise(resolver => setTimeout(resolver, 50));
+    }
+  }
+  LoopConEspera();
+</script>

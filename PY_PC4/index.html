@@ -1,0 +1,1443 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Simulacion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <script>
+  AFRAME.registerComponent('pixelated', {
+    init: function () {
+      this.el.addEventListener('model-loaded', () => {
+        const mesh = this.el.getObject3D('mesh');
+
+        mesh.traverse(nodo => {
+          if (nodo.isMesh && nodo.material.map) {
+            nodo.material.map.magFilter = THREE.NearestFilter;
+            nodo.material.map.minFilter = THREE.NearestFilter;
+            nodo.material.needsUpdate = true;
+          }
+        });
+      });
+    }
+  });
+
+  AFRAME.registerComponent('vertical-move', {
+    schema: { speed: {type: 'number', default: 0.05} },
+
+    init() {
+      this.keys = {};
+      window.addEventListener('keydown',  e => this.keys[e.code] = true);
+      window.addEventListener('keyup',    e => this.keys[e.code] = false);
+    },
+
+    tick() {
+      const pos = this.el.object3D.position;
+      if (this.keys['Space'])       pos.y += this.data.speed;
+      if (this.keys['ControlLeft'] || this.keys['ControlRight'])
+                                    pos.y -= this.data.speed;
+    }
+  });
+  </script>
+  <body>
+    <div>
+      <a-scene id="divTerreno">
+          <a-assets>
+              <a-asset-item id="tortuga" src="Assets/Tortuga/tortuga.glb"></a-asset-item>
+              <a-asset-item id="caiman" src="Assets/Caiman/crocodile.glb"></a-asset-item>
+              <a-asset-item id="comida" src="Assets/Comida/comida.glb"></a-asset-item>
+          </a-assets>      
+          
+<!-- ================== -->
+    <!-- ÁRBOLES PRIMITIVOS -->
+    <!-- ================== -->
+
+    <!-- Ceiba Amazónica -->
+    <a-cylinder position="-12 1 -18" radius="0.6" height="3" color="#5c3b1e"></a-cylinder>
+
+    <!-- Copa escalonada low-poly -->
+    <a-sphere position="-12 3 -18" radius="1.8" color="#2f7a3d"></a-sphere>
+    <a-sphere position="-12 4 -18" radius="1.4" color="#2e6d34"></a-sphere>
+    <a-sphere position="-12 3.5 -18" radius="1.1" color="#2e6d34"></a-sphere>    
+
+    <!-- Arbol1.3 -->
+    <!-- Tronco de palmera -->
+    <a-cylinder position="-18.5 1 -14" radius="0.15" height="2" color="#7d582f"></a-cylinder>
+
+    <!-- Hojas tipo abanico -->
+    <a-cone position="-18.5 2.4 -14" rotation="0 0 0" radius-bottom="1.5" radius-top="0.1" height="2" color="#2c8f4b"></a-cone>
+    <a-cone position="-18.5 3 -14" rotation="0 90 0" radius-bottom="1.4" radius-top="0.1" height="1.6" color="#2fa45a"></a-cone>
+    <a-cone position="-18.5 3.6 -14" rotation="0 45 0" radius-bottom="1.3" radius-top="0.1" height="1.6" color="#2d9f54"></a-cone>
+
+    <!-- Árbol 1 -->
+    <a-cylinder position="-16 1 -12" radius="0.3" height="2.5" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="-16 3 -12" radius="1.2" color="#2d5f2e">
+    </a-sphere>
+
+    <!-- Tronco delgado pero alto -->
+    <a-cylinder position="-18 1 -18" radius="0.25" height="4" color="#4b2e14"></a-cylinder>
+
+    <!-- Copas flotantes surrealistas -->
+    <a-octahedron position="-18 3.5 -18" radius="1.2" color="#4caf50"></a-octahedron>
+    <a-octahedron position="-18 4.3 -18.3" radius="0.9" color="#66bb6a"></a-octahedron>
+    <a-octahedron position="-17.7 3.9 -18.5" radius="0.8" color="#81c784"></a-octahedron>
+
+    <!-- Árbol 1 -->
+    <a-cylinder position="-18 1 -7" radius="0.3" height="2.5" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="-18 3 -7" radius="1.2" color="#2d5f2e">
+    </a-sphere>
+
+    <!-- Árbol 1.2 -->
+    <a-cylinder position="-18.5 1 -4" radius="0.3" height="2" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="-18.5 2.3 -4" radius="1.2" color="#2d5f2e">
+    </a-sphere>
+
+    <!-- Arbol1.3 -->
+    <!-- Tronco de palmera -->
+    <a-cylinder position="-18.5 1 -10" radius="0.15" height="2" color="#7d582f"></a-cylinder>
+
+    <!-- Hojas tipo abanico -->
+    <a-cone position="-18.5 2.4 -10" rotation="0 0 0" radius-bottom="1.5" radius-top="0.1" height="2" color="#2c8f4b"></a-cone>
+    <a-cone position="-18.5 3 -10" rotation="0 90 0" radius-bottom="1.4" radius-top="0.1" height="1.6" color="#2fa45a"></a-cone>
+    <a-cone position="-18.5 3.6 -10" rotation="0 45 0" radius-bottom="1.3" radius-top="0.1" height="1.6" color="#2d9f54"></a-cone>
+
+    <!-- Arbol1.3 -->
+    <!-- Tronco de palmera -->
+    <a-cylinder position="-10.5 1 -8" radius="0.15" height="2" color="#7d582f"></a-cylinder>
+
+    <!-- Hojas tipo abanico -->
+    <a-cone position="-10.5 2.4 -8" rotation="0 0 0" radius-bottom="1.5" radius-top="0.1" height="2" color="#2c8f4b"></a-cone>
+    <a-cone position="-10.5 3 -8" rotation="0 90 0" radius-bottom="1.4" radius-top="0.1" height="1.6" color="#2fa45a"></a-cone>
+    <a-cone position="-10.5 3.6 -8" rotation="0 45 0" radius-bottom="1.3" radius-top="0.1" height="1.6" color="#2d9f54"></a-cone>    
+
+
+    <!-- Árbol 2 -->
+    <a-cylinder position="-16.2 1 -5" radius="0.25" height="2" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="-16.2 2.3 -5" radius="1.1" color="#3f7b3f">
+    </a-sphere>
+
+    <!-- Árbol 3 -->
+    <a-cylinder position="-18.2 1 -1.5" radius="0.25" height="2" color="#6b4822">
+    </a-cylinder>
+
+    <a-sphere position="-18.2 2.8 -1.5" radius="1.3" color="#2e6a34">
+    </a-sphere>
+
+    <!-- Ceiba Amazónica -->
+    <a-cylinder position="-18 1 2" radius="0.6" height="3" color="#5c3b1e"></a-cylinder>
+
+    <!-- Copa escalonada low-poly -->
+    <a-sphere position="-18 3 2" radius="1.8" color="#2f7a3d"></a-sphere>
+    <a-sphere position="-18 4 2" radius="1.4" color="#2e6d34"></a-sphere>
+    <a-sphere position="-18 3.5 2" radius="1.1" color="#2e6d34"></a-sphere>
+
+
+    <!-- Tronco más curveado (simulado con rotaciones) -->
+    <a-cylinder position="-17.6 1 5" rotation="0 0 5" radius="0.35" height="3" color="#6b4626"></a-cylinder>
+
+    <!-- Copa irregular con 3 esferas -->
+    <a-sphere position="-17.6 2.5 5" radius="1.3" color="#3e8345"></a-sphere>
+    <a-sphere position="-17.2 3 5.3" radius="1.1" color="#35773c"></a-sphere>
+    <a-sphere position="-17.2 3 4.7" radius="0.9" color="#3c7a43"></a-sphere>
+
+
+    <!-- Tronco de palmera -->
+    <a-cylinder position="-18 1 7.6" radius="0.15" height="3" color="#7d582f"></a-cylinder>
+
+    <!-- Hojas tipo abanico -->
+    <a-cone position="-18 2.8 7.6" rotation="0 0 0" radius-bottom="1.5" radius-top="0.1" height="3" color="#2c8f4b"></a-cone>
+    <a-cone position="-18 2.8 7.6" rotation="0 90 0" radius-bottom="1.4" radius-top="0.1" height="3" color="#2fa45a"></a-cone>
+    <a-cone position="-18 2.8 7.6" rotation="0 45 0" radius-bottom="1.3" radius-top="0.1" height="3" color="#2d9f54"></a-cone>
+
+    <!-- Árbol 3 -->
+    <a-cylinder position="-13 1 2" radius="0.25" height="2" color="#6b4822">
+    </a-cylinder>
+
+    <a-sphere position="-13 2.8 2" radius="1.3" color="#2e6a34">
+    </a-sphere>
+
+
+    <!-- Tronco de palmera -->
+    <a-cylinder position="-8.5 1 9.6" radius="0.15" height="3" color="#7d582f"></a-cylinder>
+
+    <!-- Hojas tipo abanico -->
+    <a-cone position="-8.5 2.8 9.6" rotation="0 0 0" radius-bottom="1.5" radius-top="0.1" height="3" color="#2c8f4b"></a-cone>
+    <a-cone position="-8.5 2.8 9.6" rotation="0 90 0" radius-bottom="1.4" radius-top="0.1" height="3" color="#2fa45a"></a-cone>
+    <a-cone position="-8.5 2.8 9.6" rotation="0 45 0" radius-bottom="1.3" radius-top="0.1" height="3" color="#2d9f54"></a-cone>
+
+
+    <!-- Tronco delgado pero alto -->
+    <a-cylinder position="-18 1 10.5" radius="0.25" height="4" color="#4b2e14"></a-cylinder>
+
+    <!-- Copas flotantes surrealistas -->
+    <a-octahedron position="-18 3.5 10.5" radius="1.2" color="#4caf50"></a-octahedron>
+    <a-octahedron position="-18 4.3 10.2" radius="0.9" color="#66bb6a"></a-octahedron>
+    <a-octahedron position="-17.7 3.9 11" radius="0.8" color="#81c784"></a-octahedron>
+
+    <!-- Árbol 2 -->
+    <a-cylinder position="-16.4 1 11.5" radius="0.25" height="2" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="-16.4 2.3 11.5" radius="1.1" color="#3f7b3f">
+    </a-sphere>
+
+    <!-- Ceiba Amazónica -->
+    <a-cylinder position="-18 1 14" radius="0.6" height="3" color="#5c3b1e"></a-cylinder>
+
+    <!-- Copa escalonada low-poly -->
+    <a-sphere position="-18 3 14" radius="1.8" color="#2f7a3d"></a-sphere>
+    <a-sphere position="-18 4 14" radius="1.4" color="#2e6d34"></a-sphere>
+    <a-sphere position="-18 3.5 14" radius="1.1" color="#2e6d34"></a-sphere>
+
+    <!-- Árbol 2 -->
+    <a-cylinder position="-15.4 1 18.5" radius="0.25" height="2" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="-15.4 2.3 18.5" radius="1.1" color="#3f7b3f">
+    </a-sphere>
+
+    <!-- Tronco más curveado (simulado con rotaciones) -->
+    <a-cylinder position="-12.6 1 17" rotation="0 0 5" radius="0.35" height="3" color="#6b4626"></a-cylinder>
+
+    <!-- Copa irregular con 3 esferas -->
+    <a-sphere position="-12.6 2.5 17" radius="1.3" color="#3e8345"></a-sphere>
+    <a-sphere position="-12.2 3 17.3" radius="1.1" color="#35773c"></a-sphere>
+    <a-sphere position="-12.2 3 16.7" radius="0.9" color="#3c7a43"></a-sphere>
+
+    <!-- Árbol 2 -->
+    <a-cylinder position="-9.4 1 18.5" radius="0.25" height="2" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="-9.4 2.3 18.5" radius="1.1" color="#3f7b3f">
+    </a-sphere>
+
+
+    <!-- Flora Oriental -->
+
+
+    <!-- Ceiba Amazónica -->
+    <a-cylinder position="12 1 -18" radius="0.6" height="3" color="#5c3b1e"></a-cylinder>
+
+    <!-- Copa escalonada low-poly -->
+    <a-sphere position="12 3 -18" radius="1.8" color="#2f7a3d"></a-sphere>
+    <a-sphere position="12 4 -18" radius="1.4" color="#2e6d34"></a-sphere>
+    <a-sphere position="12 3.5 -18" radius="1.1" color="#2e6d34"></a-sphere>    
+
+    <!-- Arbol1.3 -->
+    <!-- Tronco de palmera -->
+    <a-cylinder position="18.5 1 -14" radius="0.15" height="2" color="#7d582f"></a-cylinder>
+
+    <!-- Hojas tipo abanico -->
+    <a-cone position="18.5 2.4 -14" rotation="0 0 0" radius-bottom="1.5" radius-top="0.1" height="2" color="#2c8f4b"></a-cone>
+    <a-cone position="18.5 3 -14" rotation="0 90 0" radius-bottom="1.4" radius-top="0.1" height="1.6" color="#2fa45a"></a-cone>
+    <a-cone position="18.5 3.6 -14" rotation="0 45 0" radius-bottom="1.3" radius-top="0.1" height="1.6" color="#2d9f54"></a-cone>
+
+    <!-- Árbol 1 -->
+    <a-cylinder position="16 1 -12" radius="0.3" height="2.5" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="16 3 -12" radius="1.2" color="#2d5f2e">
+    </a-sphere>
+
+    <!-- Tronco delgado pero alto -->
+    <a-cylinder position="18 1 -18" radius="0.25" height="4" color="#4b2e14"></a-cylinder>
+
+    <!-- Copas flotantes surrealistas -->
+    <a-octahedron position="18 3.5 -18" radius="1.2" color="#4caf50"></a-octahedron>
+    <a-octahedron position="18 4.3 -18.3" radius="0.9" color="#66bb6a"></a-octahedron>
+    <a-octahedron position="18.3 3.9 -18.5" radius="0.8" color="#81c784"></a-octahedron>
+
+    <!-- Árbol 1 -->
+    <a-cylinder position="18 1 -7" radius="0.3" height="2.5" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="18 3 -7" radius="1.2" color="#2d5f2e">
+    </a-sphere>
+
+    <!-- Árbol 1.2 -->
+    <a-cylinder position="18.5 1 -4" radius="0.3" height="2" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="18.5 2.3 -4" radius="1.2" color="#2d5f2e">
+    </a-sphere>
+
+    <!-- Arbol1.3 -->
+    <!-- Tronco de palmera -->
+    <a-cylinder position="18.5 1 -10" radius="0.15" height="2" color="#7d582f"></a-cylinder>
+
+    <!-- Hojas tipo abanico -->
+    <a-cone position="18.5 2.4 -10" rotation="0 0 0" radius-bottom="1.5" radius-top="0.1" height="2" color="#2c8f4b"></a-cone>
+    <a-cone position="18.5 3 -10" rotation="0 90 0" radius-bottom="1.4" radius-top="0.1" height="1.6" color="#2fa45a"></a-cone>
+    <a-cone position="18.5 3.6 -10" rotation="0 45 0" radius-bottom="1.3" radius-top="0.1" height="1.6" color="#2d9f54"></a-cone>
+
+    <!-- Arbol1.3 -->
+    <!-- Tronco de palmera -->
+    <a-cylinder position="10.5 1 -8" radius="0.15" height="2" color="#7d582f"></a-cylinder>
+
+    <!-- Hojas tipo abanico -->
+    <a-cone position="10.5 2.4 -8" rotation="0 0 0" radius-bottom="1.5" radius-top="0.1" height="2" color="#2c8f4b"></a-cone>
+    <a-cone position="10.5 3 -8" rotation="0 90 0" radius-bottom="1.4" radius-top="0.1" height="1.6" color="#2fa45a"></a-cone>
+    <a-cone position="10.5 3.6 -8" rotation="0 45 0" radius-bottom="1.3" radius-top="0.1" height="1.6" color="#2d9f54"></a-cone>    
+
+
+    <!-- Árbol 2 -->
+    <a-cylinder position="16.2 1 -5" radius="0.25" height="2" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="16.2 2.3 -5" radius="1.1" color="#3f7b3f">
+    </a-sphere>
+
+    <!-- Árbol 3 -->
+    <a-cylinder position="18.2 1 -1.5" radius="0.25" height="2" color="#6b4822">
+    </a-cylinder>
+
+    <a-sphere position="18.2 2.8 -1.5" radius="1.3" color="#2e6a34">
+    </a-sphere>
+
+    <!-- Ceiba Amazónica -->
+    <a-cylinder position="18 1 2" radius="0.6" height="3" color="#5c3b1e"></a-cylinder>
+
+    <!-- Copa escalonada low-poly -->
+    <a-sphere position="18 3 2" radius="1.8" color="#2f7a3d"></a-sphere>
+    <a-sphere position="18 4 2" radius="1.4" color="#2e6d34"></a-sphere>
+    <a-sphere position="18 3.5 2" radius="1.1" color="#2e6d34"></a-sphere>
+
+
+    <!-- Tronco más curveado (simulado con rotaciones) -->
+    <a-cylinder position="17.6 1 5" rotation="0 0 5" radius="0.35" height="3" color="#6b4626"></a-cylinder>
+
+    <!-- Copa irregular con 3 esferas -->
+    <a-sphere position="17.6 2.5 5" radius="1.3" color="#3e8345"></a-sphere>
+    <a-sphere position="17.2 3 5.3" radius="1.1" color="#35773c"></a-sphere>
+    <a-sphere position="17.2 3 4.7" radius="0.9" color="#3c7a43"></a-sphere>
+
+
+    <!-- Tronco de palmera -->
+    <a-cylinder position="18 1 7.6" radius="0.15" height="3" color="#7d582f"></a-cylinder>
+
+    <!-- Hojas tipo abanico -->
+    <a-cone position="18 2.8 7.6" rotation="0 0 0" radius-bottom="1.5" radius-top="0.1" height="3" color="#2c8f4b"></a-cone>
+    <a-cone position="18 2.8 7.6" rotation="0 90 0" radius-bottom="1.4" radius-top="0.1" height="3" color="#2fa45a"></a-cone>
+    <a-cone position="18 2.8 7.6" rotation="0 45 0" radius-bottom="1.3" radius-top="0.1" height="3" color="#2d9f54"></a-cone>
+
+    <!-- Árbol 3 -->
+    <a-cylinder position="13 1 2" radius="0.25" height="2" color="#6b4822">
+    </a-cylinder>
+
+    <a-sphere position="13 2.8 2" radius="1.3" color="#2e6a34">
+    </a-sphere>
+
+
+    <!-- Tronco de palmera -->
+    <a-cylinder position="8.5 1 9.6" radius="0.15" height="3" color="#7d582f"></a-cylinder>
+
+    <!-- Hojas tipo abanico -->
+    <a-cone position="8.5 2.8 9.6" rotation="0 0 0" radius-bottom="1.5" radius-top="0.1" height="3" color="#2c8f4b"></a-cone>
+    <a-cone position="8.5 2.8 9.6" rotation="0 90 0" radius-bottom="1.4" radius-top="0.1" height="3" color="#2fa45a"></a-cone>
+    <a-cone position="8.5 2.8 9.6" rotation="0 45 0" radius-bottom="1.3" radius-top="0.1" height="3" color="#2d9f54"></a-cone>
+
+
+    <!-- Tronco delgado pero alto -->
+    <a-cylinder position="18 1 10.5" radius="0.25" height="4" color="#4b2e14"></a-cylinder>
+
+    <!-- Copas flotantes surrealistas -->
+    <a-octahedron position="18 3.5 10.5" radius="1.2" color="#4caf50"></a-octahedron>
+    <a-octahedron position="18 4.3 10.2" radius="0.9" color="#66bb6a"></a-octahedron>
+    <a-octahedron position="18.3 3.9 11" radius="0.8" color="#81c784"></a-octahedron>
+
+    <!-- Árbol 2 -->
+    <a-cylinder position="16.4 1 11.5" radius="0.25" height="2" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="16.4 2.3 11.5" radius="1.1" color="#3f7b3f">
+    </a-sphere>
+
+    <!-- Ceiba Amazónica -->
+    <a-cylinder position="18 1 14" radius="0.6" height="3" color="#5c3b1e"></a-cylinder>
+
+    <!-- Copa escalonada low-poly -->
+    <a-sphere position="18 3 14" radius="1.8" color="#2f7a3d"></a-sphere>
+    <a-sphere position="18 4 14" radius="1.4" color="#2e6d34"></a-sphere>
+    <a-sphere position="18 3.5 14" radius="1.1" color="#2e6d34"></a-sphere>
+
+    <!-- Árbol 2 -->
+    <a-cylinder position="15.4 1 18.5" radius="0.25" height="2" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="15.4 2.3 18.5" radius="1.1" color="#3f7b3f">
+    </a-sphere>
+
+    <!-- Tronco más curveado (simulado con rotaciones) -->
+    <a-cylinder position="12.6 1 17" rotation="0 0 5" radius="0.35" height="3" color="#6b4626"></a-cylinder>
+
+    <!-- Copa irregular con 3 esferas -->
+    <a-sphere position="12.6 2.5 17" radius="1.3" color="#3e8345"></a-sphere>
+    <a-sphere position="12.2 3 17.3" radius="1.1" color="#35773c"></a-sphere>
+    <a-sphere position="12.2 3 16.7" radius="0.9" color="#3c7a43"></a-sphere>
+
+    <!-- Árbol 2 -->
+    <a-cylinder position="9.4 1 18.5" radius="0.25" height="2" color="#5a3d1a">
+    </a-cylinder>
+
+    <a-sphere position="9.4 2.3 18.5" radius="1.1" color="#3f7b3f">
+    </a-sphere>
+
+    <!-- ===================== -->
+    <!-- VEGETACIÓN PEQUEÑA -->
+    <!-- ===================== -->
+
+
+    <!-- Piedra tipo1 -->
+    <a-sphere position="-13 0.2 -2" radius="0.6" color="#6e6e6e" scale="1 0.4 0.8"></a-sphere>
+
+    <!-- Piedra tipo2 -->
+    <a-sphere position="-12.2 0.1 -2.3" radius="0.3" color="#7a7a7a" scale="1 0.5 0.9"></a-sphere>
+
+
+    <!-- Piedra tipo1 -->
+    <a-sphere position="14 0.2 -2" radius="0.6" color="#6e6e6e" scale="1 0.4 0.8"></a-sphere>
+
+    <!-- Piedra tipo2 -->
+    <a-sphere position="14.8 0.1 -2.3" radius="0.3" color="#7a7a7a" scale="1 0.5 0.9"></a-sphere>
+
+
+    <!-- Piedra tipo1 -->
+    <a-sphere position="16 0.2 8" radius="0.6" color="#6e6e6e" scale="1 0.4 0.8"></a-sphere>
+
+    <!-- Piedra tipo1 -->
+    <a-sphere position="14 0.2 18" radius="0.6" color="#6e6e6e" scale="1 0.4 0.8"></a-sphere>
+
+    <!-- Piedra tipo1 -->
+    <a-sphere position="-11 0.2 -12" radius="0.6" color="#6e6e6e" scale="1 0.4 0.8"></a-sphere>
+
+    <!-- Piedra tipo2 -->
+    <a-sphere position="-11.8 0.1 -12.3" radius="0.3" color="#7a7a7a" scale="1 0.5 0.9"></a-sphere>
+
+    <!-- Piedra tipo2 -->
+    <a-sphere position="-10.2 0.1 -11.7" radius="0.3" color="#7a7a7a" scale="1 0.5 0.9"></a-sphere>
+
+
+    <!-- Piedra tipo1 -->
+    <a-sphere position="-11 0.2 16" radius="0.6" color="#6e6e6e" scale="1 0.4 0.8"></a-sphere>
+
+    <!-- Piedra tipo2 -->
+    <a-sphere position="-11.8 0.1 16.3" radius="0.3" color="#7a7a7a" scale="1 0.5 0.9"></a-sphere>
+
+    <!-- Piedra tipo2 -->
+    <a-sphere position="-10.2 0.1 15.7" radius="0.3" color="#7a7a7a" scale="1 0.5 0.9"></a-sphere>
+
+    <!-- Tronco Caído -->
+    <a-cylinder position="-11 0.25 -15" rotation="0 30 90" height="3" radius="0.25" color="#5a3a1a"></a-cylinder>
+
+    <!-- Tronco Caído -->
+    <a-cylinder position="11 0.25 17" rotation="0 45 90" height="3" radius="0.25" color="#5a3a1a"></a-cylinder>
+
+    <!-- Tronco Caído -->
+    <a-cylinder position="17 0.25 -9" rotation="0 70 90" height="3" radius="0.25" color="#5a3a1a"></a-cylinder>
+
+    <!-- Piedra tipo1 -->
+    <a-sphere position="15 0.2 -16" radius="0.6" color="#6e6e6e" scale="1 0.4 0.8"></a-sphere>
+    <!-- Piedra tipo1 -->
+    <a-sphere position="14.8 0.1 -15" radius="0.6" color="#6e6e6e" scale="1 0.4 0.8"></a-sphere>
+    <!-- Piedra tipo1 -->
+    <a-sphere position="15.8 0.1 -15.7" radius="0.6" color="#6e6e6e" scale="1 0.4 0.8"></a-sphere>
+
+
+    <!-- Vegetación flotante agua -->
+    <a-circle position="0 0.05 -17" radius="0.3" color="#1f8f55" rotation="-90 0 0"></a-circle>
+    <a-circle position="3 0.05 -14" radius="0.3" color="#1f8f55" rotation="-90 0 0"></a-circle>
+    <a-circle position="-3 0.05 -6" radius="0.3" color="#1f8f55" rotation="-90 0 0"></a-circle>
+    <a-circle position="2 0.05 5" radius="0.3" color="#1f8f55" rotation="-90 0 0"></a-circle>
+    <a-circle position="-2 0.05 10" radius="0.3" color="#1f8f55" rotation="-90 0 0"></a-circle>
+
+
+
+
+    <!-- Pasto 1 -->
+    <a-cone position="-17 0.2 -5" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#3f7f34">
+    </a-cone>
+
+    <a-cone position="-16 0.2 -3" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#4b8f3a">
+    </a-cone>
+
+    <a-cone position="-14 0.2 0" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#3f7f34">
+    </a-cone>
+
+    <a-cone position="-17 0.2 3" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#4b8f3a">
+    </a-cone>
+
+    <a-cone position="-15 0.2 6" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#3f7f34">
+    </a-cone>
+
+    <a-cone position="-18 0.2 8" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#4b8f3a">
+    </a-cone>
+    
+    <a-cone position="-18 0.2 11" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#4b8f3a">
+    </a-cone>
+    
+    <a-cone position="-17 0.2 -13" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#3f7f34">
+    </a-cone>
+
+    <a-cone position="-15 0.2 -10" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#3f7f34">
+    </a-cone>
+
+    <a-cone position="-13 0.2 17" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#4b8f3a">
+    </a-cone>
+
+    <a-cone position="-8 0.2 18" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#3f7f34">
+    </a-cone>
+
+    <a-cone position="-10 0.2 -18" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#3f7f34">
+    </a-cone>
+    
+    <!-- Pasto 2 -->
+
+    <a-cone position="17 0.2 -5" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#3f7f34">
+    </a-cone>
+
+    <a-cone position="16 0.2 -3" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#4b8f3a">
+    </a-cone>
+
+    <a-cone position="17 0.2 3" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#4b8f3a">
+    </a-cone>
+
+    <a-cone position="15 0.2 6" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#3f7f34">
+    </a-cone>
+
+    <a-cone position="18 0.2 8" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#4b8f3a">
+    </a-cone>
+    
+    <a-cone position="18 0.2 11" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#4b8f3a">
+    </a-cone>
+    
+
+    <a-cone position="15 0.2 -10" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#3f7f34">
+    </a-cone>
+
+    <a-cone position="15 0.2 17" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#4b8f3a">
+    </a-cone>
+
+    <a-cone position="8 0.2 18" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#3f7f34">
+    </a-cone>
+
+    <a-cone position="10 0.2 -18" radius-bottom="0.3" radius-top="0.05" height="0.6" color="#3f7f34">
+    </a-cone>
+
+
+
+    <!-- Suelo -->
+    <a-plane position="0 0 0" rotation="-90 0 0" width="40" height="40" color="#d9ed92">
+    </a-plane>
+
+    <!-- Río -->
+    <a-plane position="0 0.01 0" rotation="-90 0 0" width="16" height="40" color="#3ba8c2" shader="flat" opacity="0.75">
+    </a-plane>
+    <!-- Luz ambiental -->
+    <a-entity light="type: ambient; intensity: 2"></a-entity>
+
+    <!-- Luz del sol -->
+    <a-entity light="type: directional; intensity: 2; castShadow: true" position="-5 10 5">
+    </a-entity>
+
+          <a-entity camera
+                    look-controls
+                    wasd-controls
+                    vertical-move>
+          </a-entity>
+          <a-sky id="cielo" color="#8eecf5"></a-sky>        
+      </a-scene>
+    </div>
+    <div id="cuadro-info" class="p-2 text-center" style="
+      position:absolute;
+      top:20px;
+      left:20px;
+      z-index:9999;
+    ">
+      <div class="p-2 mt-2 ml-2 bg-white border rounded">
+        <div class="mb-2">
+          Cant. Tortugas:
+        </div>
+        <div id="cantTortugas">0</div>        
+      </div>
+      <div class="p-2 mt-2 ml-2 bg-white border rounded">
+        <div class="mb-2">
+          Cant. Caimanes
+        </div>
+        <div id="cantCaimanes">0</div>        
+      </div>
+      <div class="p-2 mt-2 ml-2 bg-white border rounded">
+        <div class="mb-2">
+          Num Interacciones
+        </div>
+        <div id="cantInteracciones">0</div>        
+      </div>
+      <div class="p-2 mt-2 ml-2 bg-white border rounded">
+        <div class="mb-2">
+          Lentitud:
+        </div>
+        <input id="txtVelocidad" onchange="CambiarVelocidad()" type="number" min="10" max="10000" class="form-control" value="100">    
+      </div>
+      <div class="p-2 mt-2 ml-2 bg-white border rounded">
+        <div id="cantInteracciones">
+          <input id="btnPlay" onclick="Play()" type="button" class="btn  btn-success" value=" | | " >
+        </div>        
+      </div>
+  </body>
+</html>
+<script>
+  //
+  var playEstado = true;
+  function Play(){
+    playEstado = !playEstado;
+  }
+  //
+  var velocidad = 100;
+  //
+  function CambiarVelocidad(){
+    var velX = $("#txtVelocidad").val() || 10;
+    $("#txtVelocidad").val(velX);
+    velocidad = velX;
+  }
+  //
+  //Ciclo dia noche
+  var dia = 18;
+  var noche = 6;
+  var escalaDia = 10;
+  var esDia = true;
+  var lluvia = true;
+  //
+  //Detalles Lluvia
+  var probalilidadLluvia = 100;
+  var minLluvia = 4 * escalaDia;
+  var maxLluvia = 8 * escalaDia;
+  //
+  var gotasCreadas = 0;
+  var gotas = [];
+  //
+  //escala de la matriz de comida
+  var anchoRio = 16;
+  var largoRio = 20;
+  //
+  var anchoArenaTortuga = 6;
+  var anchoArenaCaiman = 6; 
+  //
+  var colorRio = "#00a8e8";
+  var colorArenaTortuga = "#ffd670";
+  var colorArenaCaiman = "#ffd670";
+  //
+  var cantTortugas = 30;
+  var cantCaimanes = 5;
+  var cantComida = 30;
+  //
+  //Detalles tortuga
+  var natalidadTortuga = 45;
+  var minCriasXTortuga = 7;
+  var maxCriasXTortuga = 10;
+  var colorTortuga = "#52b69a";
+  var desgasteTortuga = 0.02;
+  var edadBaseTortuga = 0.1;
+  var energiaTortuga = 5;
+  var tiempoVidaTortuga = 100;
+  var velTortuga = 5;
+  var velCrecimientoTortuga = 0.02;
+  var scalaModeloTortuga = 0.075;
+  //
+  var cantTortugasFallecidas = 0;
+  var cantTortugasComidas = 0;
+  //
+  //Detalles Caiman
+  var natalidadCaiman = 70;
+  var minCriasXCaiman = 2;
+  var maxCriasXCaiman = 3;
+  var colorCaiman = "#d9ed92";
+  var desgasteCaiman = 0.1;
+  var edadBaseCaiman = 0.1;
+  var tiempoVidaCaiman = 50;
+  var velCaiman = 1;
+  var velCrecimientoCaiman = 0.001;
+  var scalaModeloCaiman = 0.5;
+  //
+  //Detalles Comida
+  var velProduccionComida = 20;
+  var tiempoVidaComida = 40;
+  var energiaComida = 2;
+  var densidadComida = 9;
+  //
+  var tortugasCreadas = 0;
+  var tortugas = [];
+  //
+  var huevosCreados = 0;
+  var huevos = [];
+  var tiempoEncubacion = 50;
+  var colorHuevo = "#fbfbf2";
+  //
+  var caimanesCreados = 0;
+  var caimanes = [];
+  //
+  var comidaCreadas = 0;
+  var comidas = [];
+  //
+  function ColocarSonido(nombre, volumen = 1.0) {
+    const audio = $('<audio>')
+        .attr('src', 'Assets/Sonidos/' + nombre)
+        .on('ended', function () {
+            $(this).remove();
+        })
+        .appendTo('body')[0];
+
+    audio.volume = volumen;   // Valor entre 0.0 y 1.0
+    audio.play();
+  }
+  //
+  function RenderizarPlanoMapa(){
+    //Rio
+    RenderizarArea(-(anchoRio/2), (anchoRio/2), -(largoRio/2), (largoRio/2), colorRio);
+    //Arena Tortuga
+    RenderizarArea(-(anchoArenaTortuga)-(anchoRio/2), -(anchoRio/2), -(largoRio/2), (largoRio/2), colorArenaTortuga);
+    //Arena Caiman
+    RenderizarArea((anchoRio/2), (anchoArenaCaiman) + (anchoRio/2), -(largoRio/2), (largoRio/2), colorArenaCaiman);
+  }
+  //
+  function RenderizarArea(posXI, posXF, PosZI, PosZF, colorBloque){
+    r = ``;
+    for(var i = posXI; i < posXF ; i ++){
+      for(var j = PosZI; j < PosZF; j ++){
+        r += '<a-box position="' + i + ' -0.5 ' + j + '" rotation="0 0 0" color="' + colorBloque + '"></a-box>';
+      } 
+    }
+    $("#divTerreno").append(r);
+  }
+  //
+  function CrearTortuga(x, z, tipo){
+    tortugasCreadas ++;
+    //
+    var edadTortuga = edadBaseTortuga;
+    if(tipo == 1){
+      edadTortuga = edadBaseTortuga + (Math.floor(Math.random() * 10) / 10); 
+      if(edadTortuga > 1){
+        edadTortuga = 1;
+      }
+    }
+    //
+    var nuevaTortuga = {
+      id: tortugasCreadas,
+      comportamieto: "comer", //comer, ponerHuevos
+      posX: x,
+      posZ: z,
+      estomago: 20,
+      estomagoLleno: Math.floor(Math.random() * 10) + 5,
+      vidaMax: 20,
+      vidaActual: 20,
+      edad: edadTortuga,
+      tiempoVida: tiempoVidaTortuga + Math.floor(Math.random() * (tiempoVidaTortuga/2))
+    };
+    tortugas.push(nuevaTortuga);
+    //
+    var scalaG = nuevaTortuga.edad * 0.25;
+    r = '<a-entity gltf-model="#tortuga" id="T_' +  tortugasCreadas + '" position="' + x + ' 0 ' + z + '" rotation="0 0 0" scale="' + scalaG + ' ' + scalaG + ' ' + scalaG + '"color="' + colorTortuga + '"></a-entity>';
+    //
+    $('a-scene').append(r);
+  }
+  //
+  function PonerHuevos(tipo, cantidad, x, z){
+    huevosCreados ++;
+    var nuevoHuevo = {
+      id: huevosCreados,
+      tipo: tipo, //tortuga, caiman ...
+      cantidad: cantidad,
+      posX: x,
+      posZ: z,
+      tiempoEncubacion: tiempoEncubacion + Math.floor(Math.random() * 10)
+    };
+    huevos.push(nuevoHuevo);
+    //
+    r = '<a-box id="TH_' +  huevosCreados + '" position="' + x + ' 0.05 ' + z + '" rotation="0 0 0" scale=" 0.1 0.1 0.1" color="' + colorHuevo + '"></a-box>';
+    $('a-scene').append(r);
+  }
+  //  
+  function CrearCaiman(x, z, tipo){
+    caimanesCreados ++;
+    //
+    var edadCaiman = edadBaseCaiman;
+    if(tipo == 1){
+      edadCaiman = edadBaseCaiman + (Math.floor(Math.random() * 10) / 10);
+      if(edadCaiman > 1){
+        edadCaiman = 1;
+      }
+    }
+    //
+    var nuevoCaiman = {
+      id: caimanesCreados,
+      posX: x,
+      posZ: z,
+      estomago: 20,
+      estomagoLleno: Math.floor(Math.random() * 5) + 5,
+      vidaMax: 10,
+      vidaActual: 10,
+      edad: edadCaiman,
+      tiempoVida: tiempoVidaCaiman + Math.floor(Math.random() * 20)
+    };
+    caimanes.push(nuevoCaiman);
+    //
+    var scalaG = nuevoCaiman.edad * 0.5;
+    r = '<a-entity gltf-model="#caiman" id="CA_' +  caimanesCreados + '" position="' + x + ' 0 ' + z + '" rotation="0 0 0" scale="' + scalaG + ' ' + scalaG + ' ' + scalaG + '"></a-entity>';
+    //
+    $('a-scene').append(r);
+  }
+  //
+  function CrearComida(x,z){
+    comidaCreadas ++;
+    //
+    var nuevaComida = {
+      id: comidaCreadas,
+      posX: x,
+      posZ: z,
+      tiempoVida: tiempoVidaComida + Math.floor(Math.random() * 20)
+    };
+    comidas.push(nuevaComida);
+    //
+    r = '<a-entity gltf-model="#comida" id="C_' +  comidaCreadas + '" position="' + x + ' 0 ' + z + '" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>';
+
+    //
+    //r = '<a-box id="C_' +  comidaCreadas + '" position="' + x + ' 0.5 ' + z + '" rotation="0 0 0" scale="0.3 0.3 0.3" color="' + colorComida + '"></a-box>';
+    $('a-scene').append(r);
+  }
+  //
+  function MoverTortugas(){
+    var pusieronHuevo = false;
+    tortugas.forEach(tortuga => {
+      //CRECIMIENTO
+      if(tortuga.edad < 1){
+        tortuga.edad += velCrecimientoTortuga;
+        //
+        var scalaG = tortuga.edad * scalaModeloTortuga;
+        $("#T_" + tortuga.id).attr('scale', scalaG + ' ' + scalaG + ' ' + scalaG);
+      }
+      if(esDia == true){
+        //DESGASTE DE ENERGIA
+        tortuga.estomagoLleno -= desgasteTortuga;
+        //
+        //DAÑO POR FALTA DE COMER
+        if(tortuga.estomagoLleno/tortuga.estomago < 0.3){
+          tortuga.vidaActual --;
+          if(tortuga.vidaActual <= 0){
+            if(tortugas.length < 3){
+              tortuga.vidaActual = 1;
+            }else{
+              $('#T_' + tortuga.id).remove();
+              cantTortugasFallecidas ++;
+              return;
+            }
+          }
+        }
+      }else{
+        tortuga.comportamieto = "ponerHuevo";
+      }
+      //CURACION
+      if(tortuga.estomagoLleno/tortuga.estomago > 0.8){
+        if(tortuga.vidaMax > tortuga.vidaActual){
+          tortuga.vidaActual ++;
+        }
+      }
+      //
+      //COMPORTAMIENTOS
+      if(tortuga.comportamieto == "comer"){
+        //IR A COMER
+        //
+        var nivelBajo = (anchoRio/2);
+        if(tortuga.length < 7){
+          nivelBajo = 0;
+        }
+        //
+        const comidaX = ObjetoMasCercano(comidas, tortuga.posX, tortuga.posZ, -(anchoRio/2), nivelBajo);
+        if(comidaX != null){
+          //MOVERSE
+          if(!(MoverObjeto(tortuga, "#T_", 0, comidaX))){ // si no se mueve
+            //COMER
+            tortuga.estomagoLleno += energiaComida;
+            if(tortuga.estomagoLleno > tortuga.estomago){
+              tortuga.estomagoLleno = tortuga.estomago;
+            }
+            $('#C_' + comidaX.id).remove();
+            ColocarSonido("eat.mp3",0.05);
+            comidas = comidas.filter(c => c.id !== comidaX.id);
+          }
+        }
+        //
+        //DISPONIBILIDAD DE NATALIDAD
+        if(tortuga.edad > 0.75 && tortuga.estomagoLleno/tortuga.estomago > 0.75){
+          tortuga.comportamieto = "ponerHuevo";
+        }
+      }else if(tortuga.comportamieto == "ponerHuevo"){
+        //IR A PONER HUEVOS
+        if(tortuga.posX > - (anchoRio/2) - 2){
+          tortuga.posX = tortuga.posX - 1;
+          $("#T_" + tortuga.id).attr('rotation',  '0 180 0');
+          $("#T_" + tortuga.id).attr('position', tortuga.posX + ' 0 ' + tortuga.posZ);
+        }else{
+          tortuga.comportamieto = "comer";
+          //LLEGO
+          //NATALIDAD        
+          if(tortuga.edad > 0.75 && (tortuga.estomagoLleno/tortuga.estomago > 0.35)){
+            if(1 == Math.floor(Math.random() * natalidadTortuga)){
+              PonerHuevos("tortuga", Math.floor(Math.random() * (maxCriasXTortuga - minCriasXTortuga)) + minCriasXTortuga, tortuga.posX, tortuga.posZ);
+              tortuga.comportamieto = "comer";
+              pusieronHuevo = true;
+            }
+          }
+        }
+      }  
+    });
+    //
+    if(pusieronHuevo == true){
+      ColocarSonido("tortuga.mp3",0.3);
+    }
+    //
+    tortugas = tortugas.filter(c => {
+      const el = $('#T_' + c.id);
+      if (c.vidaActual <= 0 || el.length <= 0) {
+          return false; // se elimina del array
+      }
+      return true; // se mantiene
+    });
+  }
+  //
+  function MoverObjeto(objeto, nombreid, rotacionI, objetivo){
+    var direccionX = objeto.posX - objetivo.posX;
+    var direccionZ = objeto.posZ - objetivo.posZ;
+    //
+    //ALEATORIEDAD DE ACCIONES
+    var modo = Math.floor(Math.random() * 2);
+    var modoUso = 0;
+    if(modo == 0){
+      if(Math.abs(direccionX) > 0){
+        modoUso = 1;
+      }
+      else if(Math.abs(direccionZ) > 0){
+        modoUso = 2;
+      }
+    }else{
+      if(Math.abs(direccionZ) > 0){
+        modoUso = 2;
+      }
+      else if(Math.abs(direccionX) > 0){
+        modoUso = 1;
+      } 
+    }
+    //MOVERSE
+    if(modoUso == 1){
+      if(direccionX > 0){
+        objeto.posX = objeto.posX - 1;
+        $(nombreid + objeto.id).attr('rotation',  '0 ' + (rotacionI + 180) +' 0');
+      }
+      else{
+        objeto.posX = objeto.posX + 1;
+        $(nombreid + objeto.id).attr('rotation',  '0 ' + (rotacionI) +' 0');
+      }
+      $(nombreid + objeto.id).attr('position', objeto.posX + ' 0 ' + objeto.posZ);
+      return true;
+    }else if(modoUso == 2){
+      if(direccionZ > 0){
+        objeto.posZ = objeto.posZ - 1;
+        $(nombreid + objeto.id).attr('rotation',  '0 ' + (rotacionI + 90) +' 0');
+      }
+      else{
+        objeto.posZ = objeto.posZ + 1;
+        $(nombreid + objeto.id).attr('rotation',  '0 ' + (rotacionI - 90) +' 0');
+      }
+      $(nombreid + objeto.id).attr('position', objeto.posX + ' 0 ' + objeto.posZ);
+      return true;
+    }
+    //
+    return false;
+  }
+  //
+  function MoverCaimanes(){
+    var pusieronHuevo = false;
+    var comieron = false;
+    caimanes.forEach(caiman => {
+      //CRECIMIENTO
+      if(caiman.edad < 1){
+        caiman.edad += velCrecimientoCaiman;
+        //
+        $("#CA_" + caiman.id).attr('scale', caiman.edad + ' ' + caiman.edad + ' ' + caiman.edad);
+      }
+      //
+      if(esDia == true){
+        //DESGASTE DE ENERGIA
+        caiman.estomagoLleno -= desgasteCaiman;
+        //
+        //DAÑO POR FALTA DE COMER
+        if(caiman.estomagoLleno/caiman.estomago < 0.3){
+          caiman.vidaActual --;
+          if(caiman.vidaActual <= 0){
+            if(caimanes.length < 3){
+              caiman.vidaActual = 1;
+            }else{
+              $('#CA_' + caiman.id).remove();
+              return;
+            }
+          }
+        }
+      }
+      //CURACION
+      if(caiman.estomagoLleno/caiman.estomago > 0.8){
+        if(caiman.vidaMax > caiman.vidaActual){
+          caiman.vidaActual ++;
+        }
+      }
+      //
+      //COMPORTAMIENTOS
+      //IR A COMER
+      if(caiman.estomagoLleno/caiman.estomago < 0.8 && esDia == true){
+        const tortugaX  = ObjetoMasCercano(tortugas, caiman.posX, caiman.posZ, - (anchoRio/2) + 1, (anchoRio/2));
+        if(tortugaX != null){
+          if(!(MoverObjeto(caiman, "#CA_", -90, tortugaX))){ // si no se mueve
+            caiman.estomagoLleno += (energiaTortuga * tortugaX.edad) / caiman.edad;
+            if(caiman.estomagoLleno > caiman.estomago){
+              caiman.estomagoLleno = caiman.estomago;
+            }
+            if(tortugas.length > 3){
+              tortugaX.vidaActual = -10 * caiman.edad;
+              if(tortugaX.vidaActual <= 0){
+                $('#T_' + tortugaX.id).remove();
+                tortugas = tortugas.filter(c => c.id !== tortugaX.id);
+                comieron = true;
+                cantTortugasComidas ++;
+              }
+            }
+          }
+        }
+      }else{
+        if(caiman.posX < (anchoRio/2) + 2){
+            caiman.posX = caiman.posX + 1;
+            $("#CA_" + caiman.id).attr('rotation',  '0 -90 0');
+            $("#CA_" + caiman.id).attr('position', caiman.posX + ' 0 ' + caiman.posZ);
+        }else{
+            //
+            if(caiman.edad > 0.75 && caiman.estomagoLleno/caiman.estomago > 0.75){
+              if(1 == Math.floor(Math.random() * natalidadCaiman)){
+                PonerHuevos("caiman", Math.floor(Math.random() * (maxCriasXCaiman - minCriasXCaiman)) + minCriasXCaiman, caiman.posX, caiman.posZ);
+                pusieronHuevo = true;
+              }
+            }
+        }
+      }    
+    });
+    //
+    if(pusieronHuevo == true){
+      ColocarSonido("egg.mp3",0.3);
+    }
+    //
+    if(comieron == true){
+      ColocarSonido("eatCaiman.mp3",0.3);
+    }
+    //
+    caimanes = caimanes.filter(c => {
+      const el = $('#CA_' + c.id);
+      if (c.vidaActual <= 0 || el.length <= 0) {
+          return false; // se elimina del array
+      }
+      return true; // se mantiene
+    });
+  }
+  //
+  function ObjetoMasCercano(lista, x, z, limiteXI, limiteXF){
+    var menorDistancia = -1;
+    var itemX = null;
+    //
+    lista.forEach(item => {
+      if((item.posX >= limiteXI) && (item.posX <= limiteXF)){
+        var distancia = 0;
+        distancia += Math.abs(item.posX - x) * 0.8;
+        distancia += Math.abs(item.posZ - z) * 1;
+        //
+        if(menorDistancia == -1 || menorDistancia > distancia){
+          menorDistancia = distancia;
+          itemX = item;
+        }
+      }
+    });
+    return itemX;
+  }
+  //
+  //Inicializador de procesos
+  //RenderizarPlanoMapa();
+  //
+  //mas de una tortuga
+  for(var i = 0; i < cantTortugas; i ++){
+    CrearTortuga(
+      Math.floor(Math.random() * anchoArenaTortuga) - (anchoArenaTortuga/2) - (anchoRio/2),
+      Math.floor(Math.random() * largoRio) - (largoRio/2),
+      1
+    );
+  }
+  //mas de una comida
+  for(var i = 0; i < cantComida; i ++){
+    CrearComida(
+      Math.floor(Math.random() * anchoRio) - (anchoRio/2),
+      Math.floor(Math.random() * largoRio) - (largoRio/2)
+    );
+  }
+  //mas de un caiman
+  for(var i = 0; i < cantCaimanes; i ++){
+    CrearCaiman(
+      Math.floor(Math.random() * anchoArenaCaiman) - (anchoArenaCaiman/2) + (anchoRio/2),
+      Math.floor(Math.random() * largoRio) - (largoRio/2),
+      1
+    );
+  }
+  //
+  function Envegecimiento(lista, nombreid){
+    lista.forEach(item =>{
+      //
+      var envegece = true
+      if(item.edad){
+        envegece = false;
+        if(item.edad == 1){
+          envegece = true;
+        }
+      }
+      //
+      if(envegece){
+        //MORTALIDAD DE EDAD
+        item.tiempoVida --;
+        if(item.tiempoVida <= 0){
+          if(lista.length < 3){
+            item.tiempoVida = 1;
+          }else{
+            $(nombreid + item.id).remove();
+          }
+        }
+      }
+    });
+    //
+    lista = lista.filter(c => c.tiempoVida > 0);
+  }
+  //
+  var numeroSesion = 0;
+  async function LoopConEspera() {
+    ObtenerNumeracionSesion();
+    //
+    var tiempoTranscurrido = 0;
+    var tiempoUltimaLluvia = 0;
+    var tiempoLluvia = 0;
+    var hora = 0;
+    //
+    cantTortugasComidas = 0;
+    cantTortugasFallecidas = 0;
+    //
+    while (true) {
+      if(playEstado == true){
+        tiempoTranscurrido ++;
+        hora ++;
+        //
+        tortugasEclosionadas = 0;
+        caimanesEclosionados = 0;
+        //
+        if(tiempoTranscurrido % 4 == 0){
+          ColocarSonido("keypad.mp3",0.05);
+        }
+        //
+        if(lluvia == false){
+          if(1 == Math.floor(Math.random() * probalilidadLluvia)){
+            lluvia = true;
+            tiempoLluvia = Math.floor(Math.random() * (maxLluvia - minLluvia) + minLluvia);
+          }
+        }else{
+          tiempoUltimaLluvia ++;
+          if(tiempoUltimaLluvia >= tiempoLluvia){
+            tiempoUltimaLluvia = 0;
+            lluvia = false;
+          }
+        }
+        //Ciclo
+        if(hora <= (dia * escalaDia)){
+          esDia = true;
+          $("#cielo").attr("color", "#8eecf5");
+        }else{
+          esDia = false;
+          $("#cielo").attr("color", "#111d13");
+        }
+        if(hora == (24 * escalaDia)){
+          hora = 0;
+        }
+        //
+        if(esDia == true){
+          Envegecimiento(tortugas, '#T_');
+          Envegecimiento(caimanes, '#CA_');
+        }
+        //
+        if(tiempoTranscurrido % velTortuga == 0){
+          MoverTortugas();
+        }
+        if(tiempoTranscurrido % velCaiman == 0){
+          MoverCaimanes();
+        }
+        //Descomponer Comida
+        Envegecimiento(comidas, '#C_');
+        //
+        //
+        //Verificar Huevos
+        huevos.forEach(huevo => {
+          huevo.tiempoEncubacion --;
+          if(lluvia == true){
+            huevo.tiempoEncubacion --;
+          }
+          //
+          if(huevo.tiempoEncubacion <= 0){
+            huevo.tiempoEncubacion = 0;
+            //
+            switch(huevo.tipo){
+              case "tortuga": 
+                if(tortugas.length < 30){
+                  $('#TH_' + huevo.id).remove();
+                  //
+                  if(lluvia == true){
+                    huevo.cantidad -= 2;
+                  }
+                  //
+                  tortugasEclosionadas += huevo.cantidad;
+                  //
+                  for(var mx = 0; mx < huevo.cantidad; mx ++){
+                    CrearTortuga(
+                      huevo.posX,
+                      huevo.posZ,
+                      0
+                    );
+                  }
+                }
+                break;
+              case "caiman": 
+                if(caimanes.length < 10){
+                  $('#TH_' + huevo.id).remove();
+                  //
+                  if(lluvia == true){
+                    huevo.cantidad += 2;
+                  }
+                  //
+                  caimanesEclosionados += huevo.cantidad;
+                  //
+                  for(var mx = 0; mx < huevo.cantidad; mx ++){
+                    CrearCaiman(
+                      huevo.posX,
+                      huevo.posZ,
+                      0
+                    );
+                  }
+                }
+                break;
+            }
+          }
+        });
+        huevos = huevos.filter(c => c.tiempoEncubacion > 0);
+        //
+        if(tiempoTranscurrido % velProduccionComida == 0){
+          for(var mx = 0; mx < Math.floor(Math.random() * largoRio * anchoRio / densidadComida); mx ++){
+            CrearComida(
+              Math.floor(Math.random() * anchoRio) - (anchoRio/2),
+              Math.floor(Math.random() * largoRio) - (largoRio/2)
+            );
+          }
+        }
+        $("#cantTortugas").text(tortugas.length);
+        $("#cantCaimanes").text(caimanes.length);
+        //
+        $("#cantInteracciones").text(tiempoTranscurrido);
+        //
+        var numHuevosTortuga = 0;
+        var numHuevosCaiman = 0;
+        huevos.forEach(huevo => {
+            switch(huevo.tipo){
+              case "tortuga": 
+                numHuevosTortuga ++;
+                break;
+              case "caiman": 
+                numHuevosCaiman ++;
+                break;
+            }
+          }
+        );
+        //
+        RegistrarEstadisticas(
+          tiempoTranscurrido, 
+          tortugas.length, 
+          numHuevosTortuga, 
+          tortugasEclosionadas, 
+          caimanes.length, 
+          numHuevosCaiman, 
+          caimanesEclosionados,
+          comidas.length
+        );
+        //
+      }
+      await new Promise(resolver => setTimeout(resolver, velocidad));
+    }
+  }
+  Llover();
+  LoopConEspera();
+  //
+  //
+  function CrearGota(x,z){
+    gotasCreadas ++;
+    //
+    var y = 10 + Math.random();
+    //
+    var nuevaGota = {
+      id: gotasCreadas,
+      posX: x,
+      posZ: z,
+      posY: y
+    };
+    gotas.push(nuevaGota);
+    r = '<a-box id="G_' +  gotasCreadas + '" position="' + x + ' ' + y + ' ' + z + '" rotation="0 0 0" scale="0.1 0.4 0.1" color="' + colorRio + '"></a-box>';
+    $('a-scene').append(r);
+  }
+  //
+  async function Llover() {
+    var densidadGotas = 1;
+    var area = 40;
+    //
+    var tiempoTranscurrido = 0;
+    var velLluvia = 20;
+    //
+    while (true) {
+      tiempoTranscurrido ++;
+      gotas.forEach(gota =>{
+        if(gota.posY <= 0){
+          $("#G_" + gota.id).remove();
+        }
+        //
+        gota.posY = gota.posY - 0.2;
+        gota.posX += 0.1;
+        gota.posZ += 0.1;
+        $("#G_" + gota.id).attr('position', gota.posX + ' ' + gota.posY + ' ' + gota.posZ);          
+      });
+      //
+      gotas = gotas.filter(c => {
+        const el = $('#G_' + c.id);
+        if (el.length <= 0) {
+            return false; // se elimina del array
+        }
+        return true; // se mantiene
+      });
+      //
+      if(lluvia == true){
+        if(tiempoTranscurrido % velLluvia == 0){
+          for(var i = 0; i < (area * densidadGotas); i ++){
+            CrearGota(
+              Math.floor(Math.random() * area) - (area/2),
+              Math.floor(Math.random() * area) - (area/2)
+            );
+          }
+        }
+      }
+      await new Promise(resolver => setTimeout(resolver, velocidad/6));
+    }
+  }
+  //
+  function ActualizarCantidad(nuevaCantidad) {
+    return $.ajax({
+        type: 'PUT',
+        url: 'https://pc4te-8e874-default-rtdb.firebaseio.com/Sesion/cantidad.json',
+        data: JSON.stringify(nuevaCantidad),
+        contentType: 'application/json'
+    });
+  }
+  //
+  function ObtenerNumeracionSesion() {
+    $.ajax({
+        type: 'GET',
+        url: 'https://pc4te-8e874-default-rtdb.firebaseio.com/Sesion/cantidad.json',
+        success: function (resultado) {
+          var cantidad = 0;
+          if(resultado != null){
+            cantidad = Number(resultado) || 0;
+          }
+          cantidad ++;
+          ActualizarCantidad(cantidad);
+          //
+          numeroSesion = cantidad;
+        }
+    });
+  }
+  //
+  function Alerta(datos){
+    $.ajax({
+        type: 'POST',
+        url: 'https://pc4te-8e874-default-rtdb.firebaseio.com/Sesion/Sesion_' + numeroSesion + '/alertas.json',
+        data: JSON.stringify(
+          datos),
+        contentType: 'application/json',
+        success: function (resultado) {
+            console.log("Enviado correctamente");
+        }
+    });
+  }
+  //
+  function RegistrarEstadisticas(
+    numInteraccion, numTortugas, numHuevosTortuga, 
+    tortugasEclosionadas, numCaimanes, numHuevosCaiman, 
+    caimanesEclosionados, cantComida) {
+    $.ajax({
+        type: 'POST',
+        url: 'https://pc4te-8e874-default-rtdb.firebaseio.com/Sesion/Sesion_' + numeroSesion + '/interacciones.json',
+        data: JSON.stringify(
+          { 
+            numInteraccion: numInteraccion,
+            numTortugas: numTortugas,
+            numHuevosTortuga: numHuevosTortuga,
+            tortugasEclosionadas: tortugasEclosionadas,
+            numCaimanes: numCaimanes,
+            numHuevosCaiman: numHuevosCaiman,
+            esDia: esDia, // true false
+            lluvia: lluvia, // true false
+            cantComida, cantComida,
+            cantTortugasFallecidas: cantTortugasFallecidas, // por hambre
+            cantTortugasComidas: cantTortugasComidas // por caimanes
+          }),
+        contentType: 'application/json',
+        success: function (resultado) {
+            console.log("Estadisticas enviadas");
+        }
+    });
+    //
+    if(numTortugas < 10){
+      Alerta({
+        numInteraccion: numInteraccion,
+        tipo: "pocas Tortugas"
+      });
+    }
+    //
+    if(numCaimanes > 10){
+      Alerta({
+        numInteraccion: numInteraccion,
+        tipo: "muchos Caimanes"
+      });
+    }    
+  }
+  function ReiniciarBD() {
+    $.ajax({
+        type: 'DELETE',
+        url: 'https://pc4te-8e874-default-rtdb.firebaseio.com/Sesion.json',
+        success: function () {
+            console.log("Base de datos reiniciada");
+        }
+    });
+  }
+  //
+  //ReiniciarBD();
+</script>
