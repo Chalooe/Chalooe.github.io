@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Simulacion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <script>
+  AFRAME.registerComponent('pixelated', {
+    init: function () {
+      this.el.addEventListener('model-loaded', () => {
+        const mesh = this.el.getObject3D('mesh');
+
+        mesh.traverse(nodo => {
+          if (nodo.isMesh && nodo.material.map) {
+            nodo.material.map.magFilter = THREE.NearestFilter;
+            nodo.material.map.minFilter = THREE.NearestFilter;
+            nodo.material.needsUpdate = true;
+          }
+        });
+      });
+    }
+  });
+  //
+  AFRAME.registerComponent('vertical-move', {
+    schema: { speed: {type: 'number', default: 0.05} },
+
+    init() {
+      this.keys = {};
+      window.addEventListener('keydown',  e => this.keys[e.code] = true);
+      window.addEventListener('keyup',    e => this.keys[e.code] = false);
+    },
+
+    tick() {
+      const pos = this.el.object3D.position;
+      if (this.keys['Space'])       pos.y += this.data.speed;
+      if (this.keys['ShiftLeft'] || this.keys['ShiftRight'])     pos.y -= this.data.speed;
+    }
+  });
+  </script>
+  <style>
+    table tr td {
+      padding: 2px 5px !important;
+    }
+  </style>
+  <body>
+    <div>
+      <a-scene id="divTerreno">
+          <a-assets>
+              <a-asset-item id="persona" src="Assets/Persona/persona.glb"></a-asset-item>
+              <a-asset-item id="tienda" src="Assets/Tienda/Tienda.glb"></a-asset-item>
+          </a-assets>    
+          <a-entity gltf-model="#tienda" position="0 0 0" rotation="0 0 0" scale="5 5 5"></a-entity>
+          <a-entity gltf-model="#persona" position="90 0 -7" rotation="0 -90 0" scale="10 10 10"></a-entity>';
+
+
+         
+          <!-- Luz ambiental -->
+          <a-entity light="type: ambient; intensity: 2"></a-entity>
+          <!-- Luz del sol -->
+          <a-entity light="type: directional; intensity: 2; castShadow: true" position="-5 10 5"></a-entity>
+          <a-entity camera
+                    look-controls
+                    wasd-controls
+                    vertical-move>
+          </a-entity>
+          <a-sky id="cielo" color="#8eecf5"></a-sky>        
+      </a-scene>
+    </div>
+    <div id="cuadro-info" class="p-2 text-center" style="
+      position:absolute;
+      bottom:20px;
+      left:20px;
+      z-index:9999;
+    ">
+      <div class="p-2 mt-2 ml-2 bg-white border rounded">
+        <div class="mb-2">
+          Temperatura:
+        </div>
+        <div id="temperatura" class="bg-danger text-center rounded-3">0 C°</div>
+      </div>
+      <div class="p-2 mt-2 ml-2 bg-white border rounded">
+        <div class="mb-2">
+          Lentitud:
+        </div>
+        <input id="txtVelocidad" onchange="CambiarVelocidad()" type="number" min="10" max="10000" class="form-control" value="100">    
+      </div>
+      <div class="p-2 mt-2 ml-2 bg-white border rounded">
+        <div id="">
+          <input id="btnPlay" onclick="Play()" type="button" class="btn  btn-success" value=" | | " >
+        </div>        
+      </div>
+    </div>
+    <div class="p-2 m-0 text-center row d-flex w-100 justify-content-end" style="
+      position:absolute;
+      top:0;
+      right:0;
+      z-index:9998;
+    ">
+      <div class="p-2 bg-white border col-lg-3 col-md-4 col-sm-6 col-12">
+        <p class="d-flex justify-content-between mb-0">
+          <span>PRODUCTOS</span>
+          <input onclick="MostrarTabla()" type="button" class="btn btn-success p-0 px-2" value="V" >
+        </p>
+        <table class="text-start w-100 table table-bordered" id="tbProductos">
+          <tbody id="tbProductoStock">
+            <tr>
+              <td>
+                Helado
+              </td>
+              <td class="bg-danger text-center rounded-3 w-25" id="cantHelado">
+                0
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="mb-0">
+          REPONER
+        </p>
+        <p class="d-flex justify-content-between mb-0">
+          <input id="txtAgregado" type="number" min="0" max="20" class="form-control" value="0">
+          <select id="slProductos" class="form-select">
+            <option value="xd"> aaaa</option>
+          </select>
+          <input onclick="ReponerProductos()" type="button" class="btn btn-success p-0 px-2" value=" + " >
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
+<script>
+  //
+  var playEstado = false;
+  function Play(){
+    playEstado = !playEstado;
+  }
+  //
+  var estadoTabla = true;
+  function MostrarTabla(){
+    estadoTabla = !estadoTabla;
+    if(estadoTabla){
+      $("#tbProductos").show();
+    }else{
+      $("#tbProductos").hide();
+    }
+  }
+  //
+  function ReponerProductos(){
+    let productoX = $("#slProductos").val();
+    let cantX = $("#txtAgregado").val();
+    //
+    productos.forEach(item => {
+      if(item.id == productoX){
+        item.cantidad = Number(item.cantidad) +  Number(cantX);
+        //
+        ActualizarProducto(item);
+        ListarProductos();
+        return;
+      }
+    });
+  }
+  //
+  var velocidad = 100;
+  //
+  function CambiarVelocidad(){
+    var velX = $("#txtVelocidad").val() || 10;
+    $("#txtVelocidad").val(velX);
+    velocidad = velX;
+  }
+  //
+  function ColocarSonido(nombre, volumen = 1.0) {
+    const audio = $('<audio>')
+        .attr('src', 'Assets/Sonidos/' + nombre)
+        .on('ended', function () {
+            $(this).remove();
+        })
+        .appendTo('body')[0];
+
+    audio.volume = volumen;   // Valor entre 0.0 y 1.0
+    audio.play();
+  }
+  //
+  function RotarObjeto(nombre, rotacionO ,direccion){
+    let rotacionF = 0;
+    switch(direccion){
+      case 1: 
+        rotacionF = rotacionO + 90;
+        break;
+      case 2: 
+        rotacionF = rotacionO + 180;
+        break;
+      case 3: 
+        rotacionF = rotacionO - 90;
+        break;
+      default: 
+        rotacionF = rotacionO;
+        break;
+    }
+    $(nombre).attr('rotation',  '0 ' + rotacionF +' 0');
+  }
+  //
+  //TEMPERATURA
+  var temperatura = 0;
+  //
+  //Ciclo dia noche
+  var dia = 18;
+  var noche = 6;
+  var escalaDia = 10;
+  var esDia = true;
+  //
+  //DATOS DE LA PERSONA
+  var ubicacionInicialX = 0;
+  var ubicacionInicialZ = 0;
+  //
+  //LUGARES
+  var DistanciaEstanteria = 20;
+  var DistanciaCaja = 40;
+  var DistanciaSalida = 50;
+  //
+  var maxX = 80;
+  var minX = -2;
+  //
+  var medX = 50;
+  //
+  var maxZ = 7;
+  var minZ = -7;
+  //
+  var Esquina1X = medX;
+  var Esquina1Z = maxZ;
+  //
+  var Estanteria1X = minX;
+  var Estanteria1Z = maxZ;
+  //
+  var Estanteria2X = minX;
+  var Estanteria2Z = -maxZ;
+  //
+  var CajaX = maxX;
+  var CajaZ = -maxZ;
+  //
+  var SalidaX = maxX;
+  var SalidaZ = 15;
+  //
+  var velocidadPersona = 1;
+  var pasoPersona = 1.0/1.0;
+  //
+  var personasCreadas = 0;
+  var personas = [];
+  //
+  //PRODUCTO
+  var productos = [];
+  //
+  //CREACION PERSONA
+  function CrearPersona(x, z){
+    personasCreadas ++;
+    //
+    //SELECCION DE PRODUCTO A COMPRAR
+    //AGREGAR VARIACIONES DE PRODUCTOS Y QUE PUEDA LLEVAR MAS DE UNO
+    let productosRequeridos = [];
+    //
+    let productosDisponibles = productos.filter(p => p.cantidad > 0);
+    let productoX = productosDisponibles[Math.floor(Math.random() * productosDisponibles.length)];
+    //
+    if(productoX != null){
+      let nuevoProducto = {
+        nombre: productoX.nombre,
+        cantidad: Math.floor(Math.random() * 4) + 1,
+        cantidadPosible: 0,
+        estado: false,
+      };
+      productosRequeridos.push(nuevoProducto);
+    }
+    //
+    var nueva = {
+      id: personasCreadas,
+      productosRequeridos: productosRequeridos,
+      tiempoEspera: Math.floor(Math.random() * 5 * velocidadPersona) + 5,
+      tiempoEsperando: 0,
+      posX: x,
+      posZ: z,
+      lugar: 0, // esquina1, esquina2, esquina3, esquina4, esquina5
+      comportamiento: 0 //comprar - pagar - salir   
+    };
+    personas.push(nueva);
+    //
+    r = '<a-entity gltf-model="#persona" id="P_' +  personasCreadas + '" position="' + x + ' 0 ' + z + '" rotation="0 0 0" scale="10 10 10"></a-entity>';
+    //
+    $('a-scene').append(r);
+    //
+    RotarObjeto("#P_" +  personasCreadas , 0 , 1);
+  }
+  //
+  //MOVIMIENTO PERSONA
+  function MoverPersonas(){
+    personas.forEach(persona => {
+      let productoPendiente = null;
+      let idProductoPendiente = 0;
+      //CONSULTAR SI NECESITA UN PRODUCTO
+      for(let i = 0; i < persona.productosRequeridos.length; i++){
+        let productoX = persona.productosRequeridos[i];
+        //
+        //SI EL PRODUCTO ESTA EN ESTADO = FALSE SE PONE COMO SIGUIENTE
+        if(productoX.estado == false){
+          productoPendiente = productoX;
+          idProductoPendiente = i;
+          break;
+        }
+      }
+      //
+      switch(persona.lugar){
+        case 0:
+          if(Estanteria1X < persona.posX){
+            RotarObjeto("#P_" +  persona.id , 0 , 3);
+            //O SINO MOVER HACIA ADELANTE
+            persona.posX -= pasoPersona;
+            $("#P_" + persona.id).attr('position', persona.posX + ' 0 ' + persona.posZ);  
+          }else{
+            //            
+            if(productoPendiente != null){
+              //CONSULTAR DONDE ESTA EL PRODUCTO Y VERIFICAR SI YA PUEDE OBTENERLO
+              //OBTENER DETALLES DEL PRODUCTO ORIGINAL
+              let productoC = null;
+              for(let k = 0; k < productos.length; k++){
+                let productoG = productos[k];
+                //
+                //COMPARAR PRODUCTO
+                if(productoPendiente.nombre == productoG.nombre){
+                  productoC = productoG;
+                  break;
+                }          
+              }
+              //COMPROBAR LA CANTIDAD DEL PRODUCTO DISPONIBLE
+              let cantidadDisponible = productoC.cantidad - productoC.cantidadPendiente;
+              let cantidadPosible = 0;
+              if(cantidadDisponible > 0){
+                if(cantidadDisponible >= productoPendiente.cantidad){
+                  cantidadPosible = productoPendiente.cantidad;
+                }else{
+                  cantidadPosible = cantidadDisponible;
+                }
+                //QUITAR EL PRODUCTO DE LA ESTANTERIA
+                productoC.cantidadPendiente += cantidadPosible;
+                //VISUALIZAR CARRITO
+                r = '<a-box position="0 1 0" rotation="0 0 0" scale="0.2 0.2 0.2" ></a-box>';
+                $("#P_" + persona.id).append(r);
+              }
+              //OBTENER PRODUCTO EN EL CARRITO Y MARCARLO COMO COMPLETO
+              productoPendiente.cantidadPosible = cantidadPosible;
+              productoPendiente.estado = true;
+              //
+            }
+            //
+            persona.lugar = 1;
+          }
+          break;
+        case 1:
+          if(Estanteria2Z < persona.posZ){
+            RotarObjeto("#P_" +  persona.id , 0 , 2);
+            //O SINO MOVER HACIA ADELANTE
+            persona.posZ -= pasoPersona;
+            $("#P_" + persona.id).attr('position', persona.posX + ' 0 ' + persona.posZ);  
+          }else{
+            persona.lugar = 2;
+          }
+          break;
+        case 2:
+          if(CajaX > persona.posX){
+            RotarObjeto("#P_" +  persona.id , 0 , 1);
+            //O SINO MOVER HACIA ADELANTE
+            persona.posX += pasoPersona;
+            $("#P_" + persona.id).attr('position', persona.posX + ' 0 ' + persona.posZ);  
+          }else{
+            //
+            //DIRIGIRSE A CAJA
+            if(persona.productosRequeridos.length > 0){
+              //CONSULTAR PRODUCTOS DEL CARRITO
+              for(let i = 0; i < persona.productosRequeridos.length; i++){
+                let productoX = persona.productosRequeridos[i];
+                //
+                //SI EL PRODUCTO ESTA EN ESTADO = TRUE ESTA LISTO PARA COMPRAR
+                if(productoX.estado == true){
+                  if(productoX.cantidadPosible > 0){
+                    //OBTENER DETALLES DEL PRODUCTO ORIGINAL
+                    let productoC = null;
+                    for(let k = 0; k < productos.length; k++){
+                      let productoG = productos[k];
+                      //
+                      //COMPARAR PRODUCTO
+                      if(productoX.nombre == productoG.nombre){
+                        productoC = productoG;
+                        break;
+                      }          
+                    }
+                    //
+                    //COMPRAR PRODUCTOS
+                    productoC.cantidad -= productoX.cantidadPosible;
+                    productoC.cantidadPendiente -= productoX.cantidadPosible;
+                    //ENVIAR LA VENTA AL SERVIDOR
+                    RegistroVenta(productoC, productoX.cantidadPosible);
+                    ColocarSonido("money.mp3", 0.3);
+                    //
+                    $("#P_" + persona.id).empty();
+                  }  
+                }
+              }
+              //ELIMINAR EL CARRITO
+              persona.productosRequeridos = [];
+            }
+            //
+            persona.lugar = 3;
+          }
+          break;
+        case 3:
+          if(SalidaZ > persona.posZ){
+            RotarObjeto("#P_" +  persona.id , 0 , 0);
+            //O SINO MOVER HACIA ADELANTE
+            persona.posZ += pasoPersona;
+            $("#P_" + persona.id).attr('position', persona.posX + ' 0 ' + persona.posZ);  
+          }else{
+            persona.lugar = 4;
+          }
+          break;
+        default:
+          $("#P_" + persona.id).remove();
+          break;
+      }
+    });
+    //
+    personas = personas.filter(c => {
+      const el = $("#P_" + c.id);
+      if (el.length <= 0) {
+        return false; // se elimina del array
+      }
+      return true; // se mantiene
+    });
+  }
+  //
+  async function LoopConEspera() {
+    var tiempoTranscurrido = 0;
+    var hora = 0;
+    //
+    while (true) {
+      if(playEstado == true){
+        tiempoTranscurrido ++;
+        hora ++;
+        //
+        if(tiempoTranscurrido % 4 == 0){
+          ColocarSonido("keypad.mp3",0.05);
+        }
+        //
+        //Ciclo
+        if(hora <= (dia * escalaDia)){
+          esDia = true;
+          $("#cielo").attr("color", "#8eecf5");
+        }else{
+          esDia = false;
+          $("#cielo").attr("color", "#111d13");
+        }
+        if(hora == (24 * escalaDia)){
+          hora = 0;
+        }
+        //
+        if(tiempoTranscurrido % velocidadPersona == 0){
+          MoverPersonas();
+        }
+        //
+        if(esDia == true && tiempoTranscurrido % (velocidadPersona * 50) == 0){
+          CrearPersona(Esquina1X,Esquina1Z);
+        }
+        //
+        ListarProductos();
+      }
+      await new Promise(resolver => setTimeout(resolver, velocidad));
+    }
+  }
+  //
+  function ListarProductos(){
+    let r = "";
+    productos.forEach(item =>{
+      let estado = `bg-success`;
+      if(item.cantidad < 6){
+        estado = `bg-danger`;
+      }else if(item.cantidad < 12){
+        estado = `bg-warning`;
+      }
+      r += `
+      <tr>
+        <td>
+        ${item.nombre}
+        </td>
+        <td class="${estado} text-center rounded-3 w-25">
+        ${item.cantidad - item.cantidadPendiente}
+        </td>
+      </tr>
+      `;
+    });
+    $("#tbProductoStock").html(r);
+  }
+  //LEER TEMPERATURA CONSTANTEMENTE CADA 10SEG
+  //
+  async function LoopTemperatura() {
+    while (true) {
+      if(playEstado == true){
+        $.ajax({
+          type: 'GET',
+          url: 'https://s12-te-default-rtdb.firebaseio.com/Final/Temperatura.json',
+          success: function (resultado) {
+            temperatura = Number(resultado) || 0;
+            //
+            $("#temperatura").removeClass("bg-danger");
+            $("#temperatura").removeClass("bg-success");
+            $("#temperatura").removeClass("bg-info");
+            //
+            if(temperatura <= 20){
+              $("#temperatura").addClass("bg-info");
+            }
+            else if(temperatura <= 30){
+              $("#temperatura").addClass("bg-success");
+            }
+            else{
+              $("#temperatura").addClass("bg-danger");
+            }
+            $("#temperatura").html(temperatura + " C°");
+          }
+        });
+      }
+      await new Promise(resolver => setTimeout(resolver, 10000));
+    }
+  }
+
+  function formatearFecha(fecha = new Date()) {
+    const y = fecha.getFullYear();
+    const m = String(fecha.getMonth() + 1).padStart(2, '0');
+    const d = String(fecha.getDate()).padStart(2, '0');
+    const h = String(fecha.getHours()).padStart(2, '0');
+    const min = String(fecha.getMinutes()).padStart(2, '0');
+    const s = String(fecha.getSeconds()).padStart(2, '0');
+
+    return `${y}-${m}-${d} ${h}:${min}:${s}`;
+  }
+  //
+  async function RegistroVenta(productoX, cantidad){
+    // DAR FORMATO A LA FECHA
+    let FechaVenta = formatearFecha();
+    //
+    let PrecioUnitario = productoX.precio;
+    //
+    if(temperatura <= 20){
+      if(productoX.categoria == "DulcesHelados"){
+        PrecioUnitario = productoX.precio * 0.90;
+      }
+      if(productoX.categoria == "BebidasCalientes"){
+        PrecioUnitario = productoX.precio * 1.10;
+      }
+    }
+    else if(temperatura <= 30){
+      PrecioUnitario = productoX.precio;
+    }
+    else{
+      if(productoX.categoria == "DulcesHelados"){
+        PrecioUnitario = productoX.precio * 1.10;
+      }
+      if(productoX.categoria == "BebidasCalientes"){
+        PrecioUnitario = productoX.precio * 0.90;
+      }
+    }
+    //COMPLETAR LOS DATOS DE LA VENTA
+    let datos = {
+      "ProductoID": productoX.id,
+      "Cantidad": cantidad,
+      "FechaVenta": FechaVenta,
+      "PrecioUnitario": PrecioUnitario,
+      "VendedorID": 1,
+      "ClienteID": 1
+    }
+    //
+    $.ajax({
+      type: 'POST',
+      url: 'https://s12-te-default-rtdb.firebaseio.com/Final/Venta.json',
+      data: JSON.stringify(
+        datos),
+      contentType: 'application/json',
+      success: function (resultado) {
+        console.log("Enviado correctamente");
+        //
+        ActualizarProducto(productoX);
+      }
+    });
+  }
+  //
+  async function ActualizarProducto(productoX) {
+    $.ajax({
+      type: 'PUT',
+      url: 'https://s12-te-default-rtdb.firebaseio.com/Final/Producto/' + productoX.id + '.json',
+      data: JSON.stringify(
+        {     
+          Categoria: productoX.categoria,
+          Nombre: productoX.nombre,
+          Precio: productoX.precio,
+          ProveedorID: productoX.proveedorID,
+          StockActual: productoX.cantidad
+        }),
+      contentType: 'application/json',
+      success: function (resultado) {
+        console.log("Enviado correctamente");
+      }
+    });
+  }
+  //
+  async function Inicializar() {
+    $.ajax({
+      type: 'GET',
+      url: 'https://s12-te-default-rtdb.firebaseio.com/Final/Producto.json',
+      success: function (resultado) {
+        //llenar el listado de productos
+        //
+        productos = [];
+        let r = "";
+        for (const [clave, valor] of Object.entries(resultado)) {
+          productos.push({
+            id: clave + "",
+            nombre: valor.Nombre,
+            categoria: valor.Categoria,
+            cantidad: valor.StockActual,
+            precio: valor.Precio,
+            proveedorID: valor.ProveedorID,
+            cantidadPendiente: 0
+          });
+          //
+          r += `<option value="${clave}">${valor.Nombre}</option>`;
+        }
+        $("#slProductos").html(r);
+        ListarProductos();
+        //
+        console.log(productos);
+        //
+        LoopTemperatura();
+        //
+        LoopConEspera();
+      }
+    });
+  }
+  Inicializar();
+  </script>
